@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="CSE360HELPSYSTEMPHASE1"/>
+	<classpathentry excluding="src/|CSE360HELPSYSTEMPHASE1/" kind="src" path=""/>
 	<classpathentry kind="lib" path="C:/Program Files (x86)/H2/bin/h2-2.3.232.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
