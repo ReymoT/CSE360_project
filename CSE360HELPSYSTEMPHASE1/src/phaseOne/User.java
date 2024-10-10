@@ -1,8 +1,18 @@
-package PhaseOne;
+package phaseOne;
 
 import java.time.*;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+/*******
+ * <p> User Class </p>
+ * 
+ * <p> Description: An implementation of the User class to use as a blueprint of a user </p>
+ * 
+ * @author Reimo
+ * @author Leya
+ * 
+ */
 
 public class User
 {
@@ -18,19 +28,22 @@ public class User
 	private ArrayList<String> expertList = new ArrayList<String>(); //list for expert topics
 	private Role role; //role of type Role
 	
+	//main function
 	public static void main(String[] args)
 	{
 		
 	}
 	
 	//constructor for the private variables
-	public User(String email, String userName, char[] password, boolean flag, LocalDateTime oneTimePasswordExpiry, Role role) 
+	public User(String email, String userName, char[] password, String firstName, String middleName, String lastName, String preferredName, Role role) 
 	{
 		this.email = email;
 		this.userName = userName;
 		this.password = password;
-		this.flag = flag;
-		this.oneTimePasswordExpiry = oneTimePasswordExpiry;
+		this.firstName = firstName;
+		this.middleName = middleName;
+		this.lastName = lastName;
+		this.preferredName = preferredName;
 		this.role = role;
 	}
 	
@@ -76,9 +89,9 @@ public class User
 		return this.userName;
 	}
 	
-	public char[] getPassword()
+	public String getPassword()
 	{
-		return this.password;
+		return this.password.toString();
 	}
 	
 	public boolean getFlag()
