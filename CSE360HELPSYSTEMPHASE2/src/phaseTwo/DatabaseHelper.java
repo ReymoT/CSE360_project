@@ -1,4 +1,4 @@
-package phaseOne;
+package phaseTwo;
 
 import java.sql.*;
 
@@ -46,8 +46,8 @@ class DatabaseHelper {
 
 	// Check if the database is empty
 	public boolean isDatabaseEmpty() throws SQLException {
-		String query = "SELECT COUNT(*) AS count FROM cse360users"; //query to execute
-		ResultSet resultSet = statement.executeQuery(query); //execute query
+		String query = "SELECT COUNT(*) AS count FROM cse360users";
+		ResultSet resultSet = statement.executeQuery(query);
 		if (resultSet.next()) {
 			return resultSet.getInt("count") == 0;
 		}
@@ -55,7 +55,7 @@ class DatabaseHelper {
 	}
 
 	public void register(String email, String password, String role) throws SQLException {
-		String insertUser = "INSERT INTO cse360users (email, password, role) VALUES (?, ?, ?)"; //query to insert user
+		String insertUser = "INSERT INTO cse360users (email, password, role) VALUES (?, ?, ?)";
 		try (PreparedStatement pstmt = connection.prepareStatement(insertUser)) {
 			pstmt.setString(1, email);
 			pstmt.setString(2, password);
@@ -65,7 +65,7 @@ class DatabaseHelper {
 	}
 
 	public boolean login(String email, String password, String role) throws SQLException {
-		String query = "SELECT * FROM cse360users WHERE email = ? AND password = ? AND role = ?"; //query t select users
+		String query = "SELECT * FROM cse360users WHERE email = ? AND password = ? AND role = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setString(1, email);
 			pstmt.setString(2, password);
@@ -77,7 +77,7 @@ class DatabaseHelper {
 	}
 	
 	public boolean doesUserExist(String email) {
-	    String query = "SELECT COUNT(*) FROM cse360users WHERE email = ?"; //query to select users
+	    String query = "SELECT COUNT(*) FROM cse360users WHERE email = ?";
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        
 	        pstmt.setString(1, email);
@@ -94,9 +94,9 @@ class DatabaseHelper {
 	}
 
 	public void displayUsersByAdmin() throws SQLException{
-		String sql = "SELECT * FROM cse360users"; //query to select all users
+		String sql = "SELECT * FROM cse360users"; 
 		Statement stmt = connection.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);  //execute query
+		ResultSet rs = stmt.executeQuery(sql); 
 
 		while(rs.next()) { 
 			// Retrieve by column name 
@@ -114,9 +114,9 @@ class DatabaseHelper {
 	}
 	
 	public void displayUsersByUser() throws SQLException{
-		String sql = "SELECT * FROM cse360users"; //query to select all from the database
+		String sql = "SELECT * FROM cse360users"; 
 		Statement stmt = connection.createStatement();
-		ResultSet rs = stmt.executeQuery(sql); //execute query
+		ResultSet rs = stmt.executeQuery(sql); 
 
 		while(rs.next()) { 
 			// Retrieve by column name 

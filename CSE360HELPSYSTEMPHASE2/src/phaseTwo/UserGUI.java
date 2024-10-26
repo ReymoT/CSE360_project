@@ -1,4 +1,4 @@
-package phaseOne;
+package phaseTwo;
 
 //JavaFX imports
 import javafx.application.Application;
