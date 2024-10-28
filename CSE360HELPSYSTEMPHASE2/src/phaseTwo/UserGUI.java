@@ -1,4 +1,4 @@
-package phaseTwo;
+package passwordEvaluationTestbed;
 
 //JavaFX imports
 import javafx.application.Application;
@@ -8,6 +8,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.collections.*;
 
+//SQL Import
 import java.sql.SQLException;
 
 /*******
@@ -33,23 +34,16 @@ public class UserGUI extends Application
     private Button registerButton; // button to register
     private ComboBox<String> roleList; // drop-down list for choosing the role
     
-    static DatabaseHelper database = new DatabaseHelper(); //new instance of the database helper
-
+    private DatabaseHelper database; //new instance of the database helper
+    
+    public UserGUI() throws Exception
+    {
+    	database = new DatabaseHelper();
+    }
+    
     public static void main(String[] args)
     {
-    	try
-        {
-        	database.connectToDatabase();
-        	launch(args);
-        }
-        catch (SQLException e) {
-    		System.err.println("Database error: " + e.getMessage());
-    		e.printStackTrace();
-    	}
-        finally {
-    		System.out.println("Good Bye!!");
-    		database.closeConnection();
-    	}
+        launch(args);
     }
 
     @Override
@@ -66,7 +60,7 @@ public class UserGUI extends Application
         passwordField = new PasswordField();
         passwordField.setPromptText("Enter your password");
         
-        ObservableList<String> roleOptions = FXCollections.observableArrayList("Student", "Instructor");
+        ObservableList<String> roleOptions = FXCollections.observableArrayList("Student", "Instructor", "Admin");
         roleList = new ComboBox<>(roleOptions);
         roleList.setValue("Student"); // default role is student
         
@@ -83,10 +77,22 @@ public class UserGUI extends Application
         preferredNameField.setPromptText("Enter your preferred name");
 
         loginButton = new Button("Login");
-        loginButton.setOnAction(action -> handleLogin());
+        loginButton.setOnAction(action -> {
+			try {
+				handleLogin();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		});
 
         registerButton = new Button("Register");
-        registerButton.setOnAction(action -> handleRegistration());
+        registerButton.setOnAction(action -> {
+			try {
+				handleRegistration();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		});
 
         VBox layout = new VBox(10);
         layout.getChildren().addAll(userNameField, emailField, passwordField, roleList, firstNameField, middleNameField, lastNameField, preferredNameField, loginButton, registerButton);
@@ -96,7 +102,7 @@ public class UserGUI extends Application
         theStage.show();
     }
 
-    private void handleLogin()
+    private void handleLogin() throws SQLException
     {
         String email = emailField.getText();
         String password = passwordField.getText();
@@ -111,27 +117,19 @@ public class UserGUI extends Application
         if (database.doesUserExist(email) == false)
         {
         	createAlert(Alert.AlertType.ERROR, "Login Failed", "User does not exist");
-        	return;
         }
 
-        try
+        if (database.login(email, password, roleValue))
         {
-			if (database.login(email, password, roleValue))
-			{
-				createAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + email);
-			} 
-			else
-			{
-				createAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid email or password.");
-			}
-		}
-        catch (SQLException e)
+        	createAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + email);
+        } 
+        else
         {
-			e.printStackTrace();
-		}
+        	createAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid email or password.");
+        }
     }
 
-    private void handleRegistration()
+    private void handleRegistration() throws SQLException
     {
     	// get all necessary values from the fields
     	String userName = userNameField.getText();
@@ -160,12 +158,7 @@ public class UserGUI extends Application
 
         // Instance of a new user
         User newUser = new User(email, userName, securePassword, firstName, middleName, lastName, preferredName, role);
-        try {
-			database.register(email, password, roleValue);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // register the new user
+        database.register(email, password, roleValue); // register the new user
 
         createAlert(Alert.AlertType.INFORMATION, "Registration Successful", "Account created successfully.");
     }
