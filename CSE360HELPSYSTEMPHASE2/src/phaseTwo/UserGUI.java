@@ -49,7 +49,7 @@ public class UserGUI extends Application
     @Override
     public void start(Stage theStage)
     {
-    	theStage.setTitle("CSE 360 Project Phase One");
+    	theStage.setTitle("Login Screen");
 
         userNameField = new TextField();
         userNameField.setPromptText("Enter your username");
@@ -79,7 +79,15 @@ public class UserGUI extends Application
         loginButton = new Button("Login");
         loginButton.setOnAction(action -> {
 			try {
-				handleLogin();
+				boolean validUser = handleLogin();
+				if (validUser)
+				{
+					Dashboard dashboard = new Dashboard();
+		        	Scene dashboardScene = dashboard.createScene();
+
+		            theStage.setScene(dashboardScene);
+		            theStage.setTitle("Home Screen");
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -102,7 +110,7 @@ public class UserGUI extends Application
         theStage.show();
     }
 
-    private void handleLogin() throws SQLException
+    private boolean handleLogin() throws SQLException
     {
         String email = emailField.getText();
         String password = passwordField.getText();
@@ -111,21 +119,24 @@ public class UserGUI extends Application
         if (email.isEmpty() || password.isEmpty())
         {
         	createAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter your email and password.");
-            return;
+            return false;
         }
         
         if (database.doesUserExist(email) == false)
         {
         	createAlert(Alert.AlertType.ERROR, "Login Failed", "User does not exist");
+        	return false;
         }
 
         if (database.login(email, password, roleValue))
         {
         	createAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + email);
+        	return true;
         } 
         else
         {
         	createAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid email or password.");
+        	return false;
         }
     }
 
@@ -155,7 +166,6 @@ public class UserGUI extends Application
             return;
         }
 
-
         // Instance of a new user
         User newUser = new User(email, userName, securePassword, firstName, middleName, lastName, preferredName, role);
         database.register(email, password, roleValue); // register the new user
@@ -171,4 +181,6 @@ public class UserGUI extends Application
         alert.setContentText(message);
         alert.showAndWait();
     }
+    
+    
 }
