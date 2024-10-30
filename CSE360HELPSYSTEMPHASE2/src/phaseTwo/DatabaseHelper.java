@@ -285,6 +285,44 @@ class DatabaseHelper {
 	    }
 	}
 	
+	// Returns articles matching a specific keyword
+	public Article returnArticleByKeyword(String keyword) throws Exception {
+	    String query = "SELECT * FROM help_articles WHERE keywords LIKE ?";
+	    Article article;
+	    
+	    // Prepare statement for searching articles by keyword
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, "%" + keyword + "%");  // Use wildcards to search for keyword within the string
+	        ResultSet resultSet = pstmt.executeQuery();
+	        
+	        // Track if articles were found
+	        boolean articleFound = false;
+	        
+	        // Iterate through the result set
+	        while (resultSet.next()) {
+	            articleFound = true;
+	            int id = resultSet.getInt("id");
+	            String articleTitle = resultSet.getString("title");
+	            String articleHeader = resultSet.getString("header");
+	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
+	            String articleDescription = resultSet.getString("description");
+	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
+	            String articleBody = resultSet.getString("body");
+	            String articleReferences = resultSet.getString("references");
+		        
+	            article = new Article(articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	            clearCharArray(articleKeywords);
+	            return article;
+	        }
+	        
+	        // Error statement if article not found
+	        if (!articleFound) {
+	            System.out.println("No article found with the keyword: " + keyword);
+	        }
+	    }
+        return null;
+	}
+	
 	// Checks whether article exists through specified keyword
 	public boolean articleExistsByKeyword(String keyword) throws SQLException {
 	   String query = "SELECT COUNT(*) FROM help_articles WHERE keywords LIKE ?";

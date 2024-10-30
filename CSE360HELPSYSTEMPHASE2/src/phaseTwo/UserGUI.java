@@ -131,7 +131,12 @@ public class UserGUI extends Application
         if (database.login(email, password, roleValue))
         {
         	createAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + email);
-        	return true;
+        	// return true only if user is an admin or instructor
+        	if (roleValue == "Instructor" || roleValue == "Admin")
+        	{
+        		return true;
+        	}
+        	return false;
         } 
         else
         {
@@ -180,7 +185,5 @@ public class UserGUI extends Application
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-    
-    
+    }   
 }

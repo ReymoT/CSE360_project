@@ -169,7 +169,6 @@ public class Dashboard
         popupStage.setScene(popupScene);
         popupStage.setTitle("Add Article");
         popupStage.show();
-
     }
 
     private void viewArticle(DatabaseHelper database) throws SQLException
@@ -230,6 +229,49 @@ public class Dashboard
     private void editArticle(DatabaseHelper database) throws SQLException
     {
     	//TODO: Implement edit functionality; delete the article and add a new one with new info
+    	Stage popupStage = new Stage();
+        VBox popupLayout = new VBox(10);
+        
+        titleField = new TextField();
+        titleField.setPromptText("Enter the NEW title:");
+        
+        headerField = new TextField();
+        headerField.setPromptText("Enter the NEW header:");
+        
+        articleGroupField = new TextField();
+        articleGroupField.setPromptText("Enter the NEW article group:");
+        
+        descriptionField = new TextField();
+        descriptionField.setPromptText("Enter the NEW description:");
+        
+        keywordsField = new TextField();
+        keywordsField.setPromptText("Enter the NEW keywords:");
+        
+        bodyField = new TextField();
+        bodyField.setPromptText("Enter the NEW body of the article:");
+        
+        referencesField = new TextField();
+        referencesField.setPromptText("Enter the NEW references:");
+        
+        submitButton = new Button("Submit");
+        submitButton.setOnAction(action -> {
+        	try {
+				boolean edited = handleSubmit(database, "edit");
+				if (edited)
+				{
+					popupStage.close(); // close the pop up window
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+        });
+
+        popupLayout.getChildren().addAll(titleField, headerField, articleGroupField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
+        Scene popupScene = new Scene(popupLayout, 600, 400);
+        
+        popupStage.setScene(popupScene);
+        popupStage.setTitle("Edit Article");
+        popupStage.show();
     }
     
     private void deleteArticle(DatabaseHelper database) throws SQLException
@@ -329,6 +371,7 @@ public class Dashboard
     	//if the type is add then try adding the article to the database
     	if (type == "add")
     	{
+    		//extract all the information from the fields
     		String title = titleField.getText();
     		String header = headerField.getText();
     		String articleGroupString = articleGroupField.getText();
@@ -359,6 +402,7 @@ public class Dashboard
 			} catch (Exception e) {
 				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
 				e.printStackTrace();
+				return false;
 			}
     		createAlert(Alert.AlertType.INFORMATION, "Success", "Article successfully added!\nThis window will now close");
     		return true; //article was added
@@ -395,7 +439,6 @@ public class Dashboard
     	
     	else if (type == "search")
     	{
-    		//TODO: implement search functionality
     		String keywords = search.getText();
     		
     		if (keywords.isEmpty())
@@ -420,12 +463,72 @@ public class Dashboard
     	}
     	else if (type == "edit")
     	{
-    		//TODO: implement edit functionality; delete given article and add again with new information
+    		//extract all necessary information
+    		String newTitle = titleField.getText();
+    		String newHeader = headerField.getText();
+    		String newArticleGroupString = articleGroupField.getText();
+    		char[] newArticleGroup = newArticleGroupString.toCharArray();
+    		String newDescription = descriptionField.getText();
+    		String newKeywordsString = keywordsField.getText();
+    		char[] newKeywords = newKeywordsString.toCharArray();
+    		String newBody = bodyField.getText();
+    		String newReferences = referencesField.getText();
+    		
+    		Article toBeEdited;
+    		
+    		//if the fields are empty, we prompt the user
+    		if (newTitle.isEmpty() || newHeader.isEmpty() || newArticleGroupString.isEmpty() ||
+    				newDescription.isEmpty() || newKeywordsString.isEmpty() || newBody.isEmpty() || newReferences.isEmpty())
+    		{
+    			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid information.");
+                return false;
+    		}
+    		
+    		boolean exists = database.articleExistsByKeyword(newKeywordsString);
+    		
+    		//if the article doesn't exist, prompt the user
+    		if (!exists)
+    		{
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Article doesn't exist.");
+                return false; // article doesn't exist
+    		}
+    		
+    		//we return an article that matches the keywords
+    		try {
+				toBeEdited = database.returnArticleByKeyword(newKeywordsString);
+			} catch (Exception e) {
+				e.printStackTrace();
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+				return false;
+			}
+    		
+    		String oldTitle = toBeEdited.getTitle();
+    		
+    		//delete the old article and add a new one with updated information
+    		try {
+				database.deleteArticle(oldTitle);
+			} catch (Exception e) {
+				e.printStackTrace();
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+				return false;
+			}
+    		
+    		try {
+				database.addArticle(newTitle, newHeader, newArticleGroup, newDescription, newKeywords, newBody, newReferences);
+			} catch (Exception e) {
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+				e.printStackTrace();
+				return false;
+			}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Article successfully updated!\nThis window will now close");
+    		return true; //article was updated
+    		
     	}
     	else if (type == "delete")
     	{
     		String title = deleteByTitle.getText();
     		
+    		//if the title is empty, prompt the user
     		if (title.isEmpty())
     		{
     			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter a valid title.");
@@ -434,6 +537,7 @@ public class Dashboard
     		
     		boolean exists = database.articleExistsByTitle(title);
     		
+    		//if the article doesn't exist, prompt the user
     		if (!exists)
     		{
     			createAlert(Alert.AlertType.ERROR, "Error!", "Article doesn't exist.");
@@ -445,7 +549,7 @@ public class Dashboard
 			} catch (Exception e) {
 				e.printStackTrace();
 				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
-				return false;
+				return false; //article wasn't deleted
 			}
     		createAlert(Alert.AlertType.INFORMATION, "Success", "Article was deleted!\nThis window will now close");
     		return true; // article was deleted
@@ -474,6 +578,7 @@ public class Dashboard
     	}
     	else
     	{
+    		//else, we RESTORE the articles
     		String file = fileName.getText();
     		String replaceString = replaceArticles.getValue();
     		boolean replace = true ? (replaceString == "Yes") : false;
@@ -497,10 +602,9 @@ public class Dashboard
 
     	}
     	
-    	return false;
-    	
     }
     
+    //function for providing the user with alerts
     private void createAlert(Alert.AlertType type, String title, String message)
     {
         Alert alert = new Alert(type);
