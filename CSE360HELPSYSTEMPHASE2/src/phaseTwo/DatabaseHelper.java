@@ -1,4 +1,4 @@
-package phaseTwo;
+package passwordEvaluationTestbed;
 
 import java.sql.*;
 import java.sql.Connection;
@@ -13,7 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Base64;
 
-//import org.bouncycastle.util.Arrays;
+import org.bouncycastle.util.Arrays;
 import Encryption.EncryptionHelper;
 import Encryption.EncryptionUtils;
 
@@ -47,6 +47,7 @@ class DatabaseHelper {
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
 			statement = connection.createStatement(); 
 			createTables();  // Create the necessary tables if they don't exist
+			createArticleTables();
 		} catch (ClassNotFoundException e) {
 			System.err.println("JDBC Driver not found: " + e.getMessage());
 		}
@@ -60,7 +61,6 @@ class DatabaseHelper {
 				+ "role VARCHAR(20))";
 		statement.execute(userTable);
 	}
-
 
 	// Check if the database is empty
 	public boolean isDatabaseEmpty() throws SQLException {
@@ -164,144 +164,242 @@ class DatabaseHelper {
 			se.printStackTrace(); 
 		} 
 	}
-	
+		
+	// Create the help_articles table in the database
 	private void createArticleTables() throws SQLException {
-		//Help Article Table
+		// Statement to create the help_articles table if it doesn't already exist
 		String articlesTable = "CREATE TABLE IF NOT EXISTS help_articles ("
 				+ "id INT AUTO_INCREMENT PRIMARY KEY, "
 				+ "title TEXT UNIQUE, "
-				+ "author TEXT, "
-				+ "abstract TEXT, "
-		 		+ "keywords TEXT, "
-				+ "body TEXT, "
-		 		+ "references TEXT)";
+				+ "header TEXT, "
+				+ "article_group TEXT, "
+				+ "description TEXT, "
+				+ "keywords TEXT, "
+		 		+ "body TEXT, "
+				+ "references TEXT)";
+		
+		// Execute the SQL statement to create the table
 		statement.execute(articlesTable);
 	}
-
-	public void addArticle(char[] title, char[] author, char[] abstractText, char[] keywords, char[] body, char[] references) throws Exception {
-	    String encryptedTitle = encryptedField(title);
-	    String encryptedAuthor = encryptedField(author);
-	    String encryptedAbstract = encryptedField(abstractText);
-	    String encryptedKeywords = encryptedField(keywords);
-	    String encryptedBody = encryptedField(body);
-	    String encryptedReferences = encryptedField(references);
-
-	    String insertArticle = "INSERT INTO help_articles (title, author, abstract, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?)";
-	    try (PreparedStatement pstmt = connection.prepareStatement(insertArticle)) {
-	        pstmt.setString(1, encryptedTitle);
-	        pstmt.setString(2, encryptedAuthor);
-	        pstmt.setString(3, encryptedAbstract);
-	        pstmt.setString(4, encryptedKeywords);
-	        pstmt.setString(5, encryptedBody);
-	        pstmt.setString(6, encryptedReferences);
+		// Add Article to the help_articles table
+	public void addArticle(String title, String header, char[] article_group, String description, char[] keywords, String body, String references) throws Exception {
+		// SQL statement to insert a new article into the help_articles table
+		String insertArticle = "INSERT INTO help_articles (title, header, article_group, description, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(insertArticle)) {
+				// Setting parameters
+	        pstmt.setString(1, title);
+	        pstmt.setString(2, header);
+	        pstmt.setString(3, new String(article_group));
+	        pstmt.setString(4, description);
+	        pstmt.setString(5, new String(keywords));
+	        pstmt.setString(6, body);
+	        pstmt.setString(7, references);
+	        
+	        // Execute the update
 	        pstmt.executeUpdate();
 	    }
 	}
 	
-	// Check if the database is empty
-	public boolean isArticlesDatabaseEmpty() throws SQLException {
-		String query = "SELECT COUNT(*) AS count FROM cse360users";
-		ResultSet resultSet = statement.executeQuery(query);
-		if (resultSet.next()) {
-			return resultSet.getInt("count") == 0;
-		}
-		return true;
-	}
 
-	//Delete the Article
-	public void deleteArticle(int id) throws SQLException {
-        String deleteQuery = "DELETE FROM help_articles WHERE id = ?";
+	// Delete the article from the database by its title
+	public void deleteArticle(String title) throws SQLException {
+        String deleteQuery = "DELETE FROM help_articles WHERE title = ?";
+	        // Prepare the SQL statement
         try (PreparedStatement pstmt = connection.prepareStatement(deleteQuery)) {
-            pstmt.setInt(1, id);
+            pstmt.setString(1, title);
             pstmt.executeUpdate();
         }
     }
-	
-	// Encrypt the Article
-	private String encryptedField(char[] field) throws Exception {
-	    byte[] encryptedBytes = encryptionHelper.encrypt(new String(field).getBytes());
-	    return Base64.getEncoder().encodeToString(encryptedBytes);
-	}
-	
-	// Decrypt the Article
-	private char[] decryptField(char[] encryptedField) throws Exception {
-	    byte[] decryptedBytes = encryptionHelper.decrypt(Base64.getDecoder().decode(new String(encryptedField)));
-	    return new String(decryptedBytes).toCharArray();
-	}
-	
+		
+	// Displays all articles in the database
 	public void displayArticles() throws Exception {
 	    String query = "SELECT * FROM help_articles";
 	    try (Statement stmt = connection.createStatement()) {
 	        ResultSet resultSet = stmt.executeQuery(query);
 	        
+	        // Iterate through results
 	        while (resultSet.next()) {
 	            int id = resultSet.getInt("id");
-	            char[] encryptedTitle = resultSet.getString("title").toCharArray();
-	            char[] encryptedAuthor = resultSet.getString("author").toCharArray();
-	            char[] encryptedAbstract = resultSet.getString("abstract").toCharArray();
-	            char[] encryptedKeywords = resultSet.getString("keywords").toCharArray();
-	            char[] encryptedBody = resultSet.getString("body").toCharArray();
-	            char[] encryptedReferences = resultSet.getString("references").toCharArray();
+	            String articleTitle = resultSet.getString("title");
+	            String articleHeader = resultSet.getString("header");
+	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
+	            String articleDescription = resultSet.getString("description");
+	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
+	            String articleBody = resultSet.getString("body");
+	            String articleReferences = resultSet.getString("references");
 
-	            char[] decryptedTitle = decryptField(encryptedTitle);
-	            displayArticle(id, decryptedTitle, 
-	                decryptField(encryptedAuthor), 
-	                decryptField(encryptedAbstract), 
-	                decryptField(encryptedKeywords),
-	                decryptField(encryptedBody),
-	                decryptField(encryptedReferences));
+	            // Call method to print to console
+	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
 	            
-	            clearCharArray(encryptedAuthor);
-	            clearCharArray(encryptedAbstract);
-	            clearCharArray(encryptedKeywords);
-	            clearCharArray(encryptedBody);
-	            clearCharArray(encryptedReferences);
+	            clearCharArray(articleKeywords);
 	        }
 	    }
 	}
-	
-	//Display Article Title
-	private void displayArticle(int id, char[] title, char[] author, char[] abstractText, char[] keywords, char[] body, char[] references) {
+		
+	// Displays the details of a single article
+	private void displayArticleConsole(int id, String title, String header, char[] article_group, String description, char[] keywords, String body, String references) {
 		System.out.println("ID: " + id);
 	    System.out.println("Title: " + new String(title));
-	    System.out.println("Author: " + new String(author));
-	    System.out.println("Abstract: " + new String(abstractText));
+	    System.out.println("Header: " + new String(header));
+	    System.out.println("Group: " + new String(article_group));
+	    System.out.println("Description: " + new String(description));
 	    System.out.println("Keywords: " + new String(keywords));
 	    System.out.println("Body: " + new String(body));
 	    System.out.println("References: " + new String(references));
+	    
+	 // Separator for clarity
 	    System.out.println("--------------------------");
 	}
-    
+		// Displays articles matching a specific keyword
+	public void displayArticleByKeyword(String keyword) throws Exception {
+	    String query = "SELECT * FROM help_articles WHERE keywords LIKE ?";
+	    
+	    // Prepare statement for searching articles by keyword
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, "%" + keyword + "%");  // Use wildcards to search for keyword within the string
+	        ResultSet resultSet = pstmt.executeQuery();
+	        
+	        // Track if articles were found
+	        boolean articleFound = false;
+	        
+	        // Iterate through the result set
+	        while (resultSet.next()) {
+	            articleFound = true;
+	            int id = resultSet.getInt("id");
+	            String articleTitle = resultSet.getString("title");
+	            String articleHeader = resultSet.getString("header");
+	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
+	            String articleDescription = resultSet.getString("description");
+	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
+	            String articleBody = resultSet.getString("body");
+	            String articleReferences = resultSet.getString("references");
+		            // Display the found article
+	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	            
+	            clearCharArray(articleKeywords);
+	        }
+	        
+	        // Error statement if article not found
+	        if (!articleFound) {
+	            System.out.println("No article found with the keyword: " + keyword);
+	        }
+	    }
+	}
+
+	// Backs up all articles to an external data file
     public void backupArticles(String fileName) throws IOException, SQLException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             String query = "SELECT * FROM help_articles";
             ResultSet resultSet = statement.executeQuery(query);
+            
+            // Iterate through the result set
             while (resultSet.next()) {
-                writer.write(resultSet.getString("title") + "\n");
-                writer.write(resultSet.getString("author") + "\n");
-                writer.write(resultSet.getString("abstract") + "\n");
-                writer.write(resultSet.getString("keywords") + "\n");
-                writer.write(resultSet.getString("body") + "\n");
-                writer.write(resultSet.getString("references") + "\n\n");
+            	writer.write("ID: " + resultSet.getInt("id") + "\n");
+                writer.write("Title: " + resultSet.getString("title") + "\n");
+                writer.write("Header: " + resultSet.getString("header") + "\n");
+                writer.write("Group: " + resultSet.getString("article_group") + "\n");  // Use "group" instead of "Group"
+                writer.write("Description: " + resultSet.getString("description") + "\n");
+                writer.write("Keywords: " + resultSet.getString("keywords") + "\n");
+                writer.write("Body: " + resultSet.getString("body") + "\n");
+                writer.write("References: " + resultSet.getString("references") + "\n");
+                writer.write("\n---\n\n");  // Separator between articles
             }
         }
     }
-    
-    public void restoreArticles(String fileName) throws IOException, Exception {
-        clearDatabase();
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                char[] title = line.toCharArray();
-                char[] author = reader.readLine().toCharArray();
-                char[] abstractText = reader.readLine().toCharArray();
-                char[] keywords = reader.readLine().toCharArray();
-                char[] body = reader.readLine().toCharArray();
-                char[] references = reader.readLine().toCharArray();
-                addArticle(title, author, abstractText, keywords, body, references);
+
+    // Backs up specified groups of articles to an external data file
+    public void backupGroupArticles(String fileName, String article_group) throws IOException, SQLException {
+        String query = "SELECT * FROM help_articles WHERE article_group LIKE ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+
+        	// Search for articles containing the specified group
+            pstmt.setString(1, "%" + article_group + "%");  // Search for articles containing the keyword
+            ResultSet resultSet = pstmt.executeQuery();
+	            // Iterate through the result set
+            while (resultSet.next()) {
+                writer.write("Title: " + resultSet.getString("title") + "\n");
+                writer.write("Header: " + resultSet.getString("header") + "\n");
+                writer.write("Group: " + resultSet.getString("article_group") + "\n");
+                writer.write("Description: " + resultSet.getString("description") + "\n");
+                writer.write("Keywords: " + resultSet.getString("keywords") + "\n");
+                writer.write("Body: " + resultSet.getString("body") + "\n");
+                writer.write("References: " + resultSet.getString("references") + "\n");
+                writer.write("\n---\n\n");  // Separator between articles
             }
         }
     }
+	    
+ // Restores articles from an external data file into the dataBase
+    public void restoreArticles(String fileName, boolean replace) throws IOException, SQLException {
+		if (replace == true) {
+			clearDatabase();
+		}
+			// Read articles from the external data file
+		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+			String line;
+			int id = 0;
+        	String title = null, header = null, group = null, description = null, keywords = null, body = null, references = null;
+	        	// Parse each line of the external data file
+			while ((line = reader.readLine()) != null) {
+				if (line.startsWith("ID: ")) {
+					id = Integer.parseInt(line.substring(4));
+					if (replace == false) {
+						String query = "SELECT COUNT(*) FROM help_articles WHERE id = ?";
+						
+						// Check if the article already exists in the database
+                    	try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+                        	pstmt.setInt(1, id);
+                        	ResultSet resultSet = pstmt.executeQuery();
+                        	resultSet.next();
+                        	if (resultSet.getInt(1) > 0) {
+                        		
+                        		// Move to the next article if it already exists
+                            	while ((line = reader.readLine()) != null && !line.trim().equals("---")) {
+                            	}
+                            	continue; 
+                        	}
+                    	}
+					}
+						
+				// Retrieving each variable of the article
+				} else if (line.startsWith("Title: ")) {
+					title = line.substring(7);
+				} else if (line.startsWith("Header: ")) {
+					header = line.substring(8);
+				} else if (line.startsWith("Group: ")) {
+					group = line.substring(7);
+				} else if (line.startsWith("Description: ")) {
+					description = line.substring(13);
+				} else if (line.startsWith("Keywords: ")) {
+					keywords = line.substring(10);
+				} else if (line.startsWith("Body: ")) {
+					body = line.substring(6);
+				} else if (line.startsWith("References: ")) {
+					references = line.substring(12);
+				} else if (line.equals("---")) {
+					
+					// Insert the article into the database
+					String insertQuery = "INSERT INTO help_articles (id, title, header, article_group, description, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+					try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
+						pstmt.setInt(1, id);
+						pstmt.setString(2, title);
+						pstmt.setString(3, header);
+						pstmt.setString(4, group);
+						pstmt.setString(5, description);
+						pstmt.setString(6, keywords);
+						pstmt.setString(7, body);
+						pstmt.setString(8, references);
+						pstmt.executeUpdate();
+					}
+						// Reset article variables for the next article
+					id = 0;
+                	title = header = group = description = keywords = body = references = null;
+				}
+			}
+		}
+	}
+	    
     private void clearDatabase() throws SQLException {
         String deleteQuery = "DELETE FROM help_articles";
         statement.executeUpdate(deleteQuery);
@@ -312,5 +410,5 @@ class DatabaseHelper {
             array[i] = ' ';
         }
     }
-
+	
 }

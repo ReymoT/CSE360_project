@@ -83,7 +83,7 @@ public class UserGUI extends Application
 				if (validUser)
 				{
 					Dashboard dashboard = new Dashboard();
-		        	Scene dashboardScene = dashboard.createScene();
+		        	Scene dashboardScene = dashboard.createScene(database);
 
 		            theStage.setScene(dashboardScene);
 		            theStage.setTitle("Home Screen");
@@ -105,7 +105,7 @@ public class UserGUI extends Application
         VBox layout = new VBox(10);
         layout.getChildren().addAll(userNameField, emailField, passwordField, roleList, firstNameField, middleNameField, lastNameField, preferredNameField, loginButton, registerButton);
 
-        Scene theScene = new Scene(layout, 300, 200);
+        Scene theScene = new Scene(layout, 800, 600);
         theStage.setScene(theScene);
         theStage.show();
     }
