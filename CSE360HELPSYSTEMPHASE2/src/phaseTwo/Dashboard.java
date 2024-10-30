@@ -44,6 +44,12 @@ public class Dashboard
 	private TextField searchByKeyword; // field to search articles by the keywords
 	
 	private TextField deleteByTitle; // field to delete articles by the title
+	
+	private TextField search; // field to search for articles
+	
+	private TextField fileName; // field to get the backup filename
+	
+	private ComboBox<String> replaceArticles; // drop-down list for choosing whether to replace the articles
 
 
     public Scene createScene(DatabaseHelper database)
@@ -147,7 +153,11 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				handleSubmit(database, "add");
+				boolean added = handleSubmit(database, "add");
+				if (added)
+				{
+					popupStage.close(); // close the pop up window
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -173,7 +183,11 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				handleSubmit(database, "view");
+				boolean viewed = handleSubmit(database, "view");
+				if (viewed)
+				{
+					popupStage.close();
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -189,12 +203,33 @@ public class Dashboard
     
     private void searchArticle(DatabaseHelper database) throws SQLException
     {
-    	
+    	Stage popupStage = new Stage();
+        VBox popupLayout = new VBox(10);
+
+        search = new TextField();
+        search.setPromptText("Enter the keyword of the article to search:");
+        
+        submitButton = new Button("Submit");
+        submitButton.setOnAction(action -> {
+        	try {
+				handleSubmit(database, "search");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+        });
+
+        popupLayout.getChildren().addAll(search, submitButton);
+        Scene popupScene = new Scene(popupLayout, 600, 400);
+        
+        popupStage.setScene(popupScene);
+        popupStage.setTitle("Search Article");
+        popupStage.show();
+
     }
     
     private void editArticle(DatabaseHelper database) throws SQLException
     {
-    	
+    	//TODO: Implement edit functionality; delete the article and add a new one with new info
     }
     
     private void deleteArticle(DatabaseHelper database) throws SQLException
@@ -208,7 +243,11 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				handleSubmit(database, "delete");
+				boolean deleted = handleSubmit(database, "delete");
+				if (deleted)
+				{
+					popupStage.close();
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -225,15 +264,67 @@ public class Dashboard
     
     private void backupArticle(DatabaseHelper database) throws SQLException
     {
-    	
+    	Stage popupStage = new Stage();
+        VBox popupLayout = new VBox(10);
+
+        fileName = new TextField();
+        fileName.setPromptText("Enter the file name where to back up:");
+        
+        submitButton = new Button("Submit");
+        submitButton.setOnAction(action -> {
+        	try {
+				boolean backedup = handleSubmit(database, "backup");
+				if (backedup)
+				{
+					popupStage.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+        });
+
+        popupLayout.getChildren().addAll(fileName, submitButton);
+        Scene popupScene = new Scene(popupLayout, 600, 400);
+        
+        popupStage.setScene(popupScene);
+        popupStage.setTitle("Backup Articles");
+        popupStage.show();
     }
     
     private void restoreArticle(DatabaseHelper database) throws SQLException
     {
-    	
+    	Stage popupStage = new Stage();
+        VBox popupLayout = new VBox(10);
+
+        fileName = new TextField();
+        fileName.setPromptText("Enter the file name from where to restore:");
+        
+        ObservableList<String> roleOptions = FXCollections.observableArrayList("No", "Yes");
+        replaceArticles = new ComboBox<>(roleOptions);
+        replaceArticles.setValue("No"); // default answer is no
+        
+        submitButton = new Button("Submit");
+        submitButton.setOnAction(action -> {
+        	try {
+				boolean restored = handleSubmit(database, "backup");
+				if (restored)
+				{
+					popupStage.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+        });
+
+        popupLayout.getChildren().addAll(fileName, submitButton);
+        Scene popupScene = new Scene(popupLayout, 600, 400);
+        
+        popupStage.setScene(popupScene);
+        popupStage.setTitle("Restore Articles");
+        popupStage.show();
     }
     
-    private void handleSubmit(DatabaseHelper database, String type) throws SQLException
+    private boolean handleSubmit(DatabaseHelper database, String type) throws SQLException
     {
     	//if the type is add then try adding the article to the database
     	if (type == "add")
@@ -252,14 +343,25 @@ public class Dashboard
     			description.isEmpty() || keywordsString.isEmpty() || body.isEmpty() || references.isEmpty())
     		{
     			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid information.");
-                return;
+                return false;
+    		}
+    		
+    		boolean exists = database.articleExistsByKeyword(keywordsString);
+    		
+    		if (exists)
+    		{
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Article already exists.");
+                return false;
     		}
     		
     		try {
 				database.addArticle(title, header, articleGroup, description, keywords, body, references);
 			} catch (Exception e) {
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
 				e.printStackTrace();
 			}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Article successfully added!\nThis window will now close");
+    		return true; //article was added
     	}
     	else if (type == "view")
     	{
@@ -268,23 +370,57 @@ public class Dashboard
     		if (keywords.isEmpty())
     		{
     			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid keywords.");
-                return;
+                return false;
     		}
+    		
+    		boolean exists = database.articleExistsByKeyword(keywords);
+    		
+    		if (!exists)
+    		{
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Article doesn't exist.");
+                return false;
+    		}
+
     		
     		try {
 				database.displayArticleByKeyword(keywords);
 			} catch (Exception e) {
 				e.printStackTrace();
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+				return false;
 			}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Article displayed in the console!\nThis window will now close");
+    		return true; // article was successfully viewed
     	}
     	
     	else if (type == "search")
     	{
     		//TODO: implement search functionality
+    		String keywords = search.getText();
+    		
+    		if (keywords.isEmpty())
+    		{
+    			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid keywords.");
+                return false;
+    		}
+    		
+    		boolean exists = database.articleExistsByKeyword(keywords);
+    		
+    		if (exists)
+    		{
+                createAlert(Alert.AlertType.INFORMATION, "Success", "Article exists!");
+        		return true; // article does exist
+    		}
+    		else
+    		{
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Article doesn't exist.");
+                return false; // article doesn't exist
+    		}
+
     	}
     	else if (type == "edit")
     	{
-    		//TODO: implement edit functionality
+    		//TODO: implement edit functionality; delete given article and add again with new information
     	}
     	else if (type == "delete")
     	{
@@ -293,19 +429,75 @@ public class Dashboard
     		if (title.isEmpty())
     		{
     			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter a valid title.");
-                return;
+                return false;
     		}
     		
-    		database.deleteArticle(title);
+    		boolean exists = database.articleExistsByTitle(title);
+    		
+    		if (!exists)
+    		{
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Article doesn't exist.");
+                return false;
+    		}
+    		
+    		try {
+				database.deleteArticle(title);
+			} catch (Exception e) {
+				e.printStackTrace();
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+				return false;
+			}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Article was deleted!\nThis window will now close");
+    		return true; // article was deleted
     	}
     	else if (type == "backup")
     	{
-    		//TODO: implement backup functionality
+    		String file = fileName.getText();
+    		
+    		//if the fileName field is empty, prompt the user
+    		if (file.isEmpty())
+    		{
+    			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter a valid filename.");
+                return false;
+    		}
+    		
+    		try {
+				database.backupArticles(file);
+			} catch (Exception e) {
+				e.printStackTrace();
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+				return false; // articles weren't backed up
+			}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Articles were backed up!\nThis window will now close");
+    		return true; // articles were backed up
+
     	}
     	else
     	{
-    		//TODO: implement restore functionality
+    		String file = fileName.getText();
+    		String replaceString = replaceArticles.getValue();
+    		boolean replace = true ? (replaceString == "Yes") : false;
+    		
+    		//if the fileName field is empty, prompt the user
+    		if (file.isEmpty())
+    		{
+    			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter a valid filename.");
+                return false;
+    		}
+    		
+    		try {
+				database.restoreArticles(file, replace);
+			} catch (Exception e) {
+				e.printStackTrace();
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+				return false; // articles weren't restored
+			}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Articles were restored!\nThis window will now close");
+    		return true; // articles were restored
+
     	}
+    	
+    	return false;
     	
     }
     

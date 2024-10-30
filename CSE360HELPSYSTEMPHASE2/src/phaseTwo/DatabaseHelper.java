@@ -199,7 +199,6 @@ class DatabaseHelper {
 	        pstmt.executeUpdate();
 	    }
 	}
-	
 
 	// Delete the article from the database by its title
 	public void deleteArticle(String title) throws SQLException {
@@ -285,6 +284,34 @@ class DatabaseHelper {
 	        }
 	    }
 	}
+	
+	// Checks whether article exists through specified keyword
+	public boolean articleExistsByKeyword(String keyword) throws SQLException {
+	   String query = "SELECT COUNT(*) FROM help_articles WHERE keywords LIKE ?";
+	   
+	   // Prepare statement for searching articles by keyword
+	   try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	       pstmt.setString(1, "%" + keyword + "%");  // Use wildcards to search for the keyword within keywords
+	       ResultSet resultSet = pstmt.executeQuery();
+	       
+	       // Return true if there is at least one matching article
+	       return resultSet.next() && resultSet.getInt(1) > 0;
+	   }
+	}
+	
+	// Checks whether article exists through specified title
+		public boolean articleExistsByTitle(String title) throws SQLException {
+		   String query = "SELECT COUNT(*) FROM help_articles WHERE title LIKE ?";
+		   
+		   // Prepare statement for searching articles by title
+		   try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+		       pstmt.setString(1, title);
+		       ResultSet resultSet = pstmt.executeQuery();
+		       
+		       // Return true if there is at least one matching article
+		       return resultSet.next() && resultSet.getInt(1) > 0;
+		   }
+		}
 
 	// Backs up all articles to an external data file
     public void backupArticles(String fileName) throws IOException, SQLException {
