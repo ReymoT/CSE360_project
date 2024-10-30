@@ -1,4 +1,4 @@
-package passwordEvaluationTestbed;
+package phaseTwo;
 
 import java.sql.*;
 import java.sql.Connection;

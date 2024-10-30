@@ -1,4 +1,4 @@
-package passwordEvaluationTestbed;
+package phaseTwo;
 
 //JavaFX imports
 import javafx.application.Application;
