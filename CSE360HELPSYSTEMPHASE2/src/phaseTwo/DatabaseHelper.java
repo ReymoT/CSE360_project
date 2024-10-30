@@ -17,7 +17,15 @@ import org.bouncycastle.util.Arrays;
 import Encryption.EncryptionHelper;
 import Encryption.EncryptionUtils;
 
-
+/*******
+ * <p> DatabaseHelper Class </p>
+ * 
+ * <p> Description: A database helper program with all database/SQL functions</p>
+ * 
+ * @author Ishita
+ * @author Leya
+ * 
+ */
 
 class DatabaseHelper {
 
