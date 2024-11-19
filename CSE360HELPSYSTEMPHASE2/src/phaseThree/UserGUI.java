@@ -1,4 +1,4 @@
-package phaseTwo;
+package phaseThree;
 
 //JavaFX imports
 import javafx.application.Application;
@@ -33,6 +33,7 @@ public class UserGUI extends Application
     private Button loginButton; // button to log in
     private Button registerButton; // button to register
     private ComboBox<String> roleList; // drop-down list for choosing the role
+    private ComboBox<String> accessGroup; //drop-down list for choosing the special access group
     
     private DatabaseHelper database; //new instance of the database helper
     
@@ -64,6 +65,10 @@ public class UserGUI extends Application
         roleList = new ComboBox<>(roleOptions);
         roleList.setValue("Student"); // default role is student
         
+        ObservableList<String> groupOptions = FXCollections.observableArrayList("Group 1", "Group 2", "Group 3");
+        accessGroup = new ComboBox<>(groupOptions);
+        accessGroup.setValue("Group 1"); // default role is Group 1
+        
         firstNameField = new TextField();
         firstNameField.setPromptText("Enter your first name");
         
@@ -82,8 +87,9 @@ public class UserGUI extends Application
 				boolean validUser = handleLogin();
 				if (validUser)
 				{
+					String role = roleList.getValue();
 					Dashboard dashboard = new Dashboard();
-		        	Scene dashboardScene = dashboard.createScene(database);
+		        	Scene dashboardScene = dashboard.createScene(database, role);
 
 		            theStage.setScene(dashboardScene);
 		            theStage.setTitle("Home Screen");
@@ -103,7 +109,7 @@ public class UserGUI extends Application
 		});
 
         VBox layout = new VBox(10);
-        layout.getChildren().addAll(userNameField, emailField, passwordField, roleList, firstNameField, middleNameField, lastNameField, preferredNameField, loginButton, registerButton);
+        layout.getChildren().addAll(userNameField, emailField, passwordField, roleList, accessGroup, firstNameField, middleNameField, lastNameField, preferredNameField, loginButton, registerButton);
 
         Scene theScene = new Scene(layout, 800, 600);
         theStage.setScene(theScene);
@@ -115,6 +121,7 @@ public class UserGUI extends Application
         String email = emailField.getText();
         String password = passwordField.getText();
         String roleValue = roleList.getValue();
+        String groupValue = accessGroup.getValue();
 
         if (email.isEmpty() || password.isEmpty())
         {
@@ -128,15 +135,10 @@ public class UserGUI extends Application
         	return false;
         }
 
-        if (database.login(email, password, roleValue))
+        if (database.login(email, password, roleValue, groupValue))
         {
-        	createAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + email);
-        	// return true only if user is an admin or instructor
-        	if (roleValue == "Instructor" || roleValue == "Admin")
-        	{
-        		return true;
-        	}
-        	return false;
+        	createAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + email + "\nYour group is: " + groupValue);
+        	return true;
         } 
         else
         {
@@ -156,6 +158,7 @@ public class UserGUI extends Application
         String lastName = lastNameField.getText();
         String preferredName = preferredNameField.getText();
         String roleValue = roleList.getValue();
+        String groupValue = accessGroup.getValue();
         
         char[] securePassword = password.toCharArray(); //non-string type secure password
         Role role = new Role(roleValue); // new instance of a role
@@ -173,7 +176,7 @@ public class UserGUI extends Application
 
         // Instance of a new user
         User newUser = new User(email, userName, securePassword, firstName, middleName, lastName, preferredName, role);
-        database.register(email, password, roleValue); // register the new user
+        database.register(email, password, roleValue, groupValue); // register the new user
 
         createAlert(Alert.AlertType.INFORMATION, "Registration Successful", "Account created successfully.");
     }
@@ -185,5 +188,7 @@ public class UserGUI extends Application
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }   
+    }
+    
+    
 }

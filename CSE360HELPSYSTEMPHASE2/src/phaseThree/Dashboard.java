@@ -1,4 +1,4 @@
-package phaseTwo;
+package phaseThree;
 
 //JavaFX imports
 import javafx.application.Application;
@@ -31,6 +31,9 @@ public class Dashboard
     private Button deleteButton; // button to delete articles
     private Button backupButton; // button to backup articles
     private Button restoreButton; // button to restore articles
+    private Button displayMessagesButton; // button to display all messages
+    private Button sendMessageButton; // button to send messages
+    private Button viewAllArticlesButton; // button to view all articles
     
     private TextField titleField; // field to enter the title
 	private TextField headerField; // field to enter the header
@@ -41,7 +44,7 @@ public class Dashboard
 	private TextField referencesField; // field to enter the references
 	private Button submitButton; // button to submit the data
 	
-	private TextField searchByKeyword; // field to search articles by the keywords
+	private TextField searchByTitle; // field to search articles by the title
 	
 	private TextField deleteByTitle; // field to delete articles by the title
 	
@@ -50,9 +53,15 @@ public class Dashboard
 	private TextField fileName; // field to get the backup filename
 	
 	private ComboBox<String> replaceArticles; // drop-down list for choosing whether to replace the articles
+	
+	private TextField messageTitle; // field to enter the title for the help message
+	private TextField messageBody; // field to enter the body for the help message
+	private ComboBox<String> messageType; // drop-down list for choosing the type of message
+	
+	private ComboBox<String> contentLevel; // drop-down list for choosing the content level of articles
 
 
-    public Scene createScene(DatabaseHelper database)
+    public Scene createScene(DatabaseHelper database, String role)
     {
     	VBox layout = new VBox(10);
         addButton = new Button("Add Article");
@@ -73,6 +82,15 @@ public class Dashboard
 			}
 		});
 
+        viewAllArticlesButton = new Button("View All Articles");
+        viewAllArticlesButton.setOnAction(action -> {
+			try {
+				viewAllArticles(database);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		});
+        
         searchButton = new Button("Search Article");
         searchButton.setOnAction(action -> {
 			try {
@@ -118,8 +136,33 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
-                
-        layout.getChildren().addAll(addButton, viewButton, searchButton, editButton, deleteButton, backupButton, restoreButton);
+        
+        displayMessagesButton = new Button("Display Help Messages");
+        displayMessagesButton.setOnAction(action -> {
+			try {
+				//Display all help messages
+				database.displayMessages();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+        
+        sendMessageButton = new Button("Help");
+        sendMessageButton.setOnAction(action -> {
+			try {
+				//Send a help message
+				sendMessage(database);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+        
+        if (role == "Admin")
+        {
+        	layout.getChildren().addAll(addButton, viewButton, viewAllArticlesButton, searchButton, editButton, deleteButton, backupButton, restoreButton, displayMessagesButton);
+        } else {
+        	layout.getChildren().addAll(viewButton, viewAllArticlesButton, searchButton, sendMessageButton);
+        }
         Scene theScene = new Scene(layout, 800, 600);
         return theScene;
     }
@@ -176,8 +219,8 @@ public class Dashboard
     	Stage popupStage = new Stage();
         VBox popupLayout = new VBox(10);
 
-        searchByKeyword = new TextField();
-        searchByKeyword.setPromptText("Enter the keyword:");
+        searchByTitle = new TextField();
+        searchByTitle.setPromptText("Enter the title:");
         
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -192,12 +235,43 @@ public class Dashboard
 			}
         });
 
-        popupLayout.getChildren().addAll(searchByKeyword, submitButton);
+        popupLayout.getChildren().addAll(searchByTitle, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
         
         popupStage.setScene(popupScene);
         popupStage.setTitle("View Article");
         popupStage.show();
+    }
+    
+    private void viewAllArticles(DatabaseHelper database) throws SQLException
+    {    	
+    	Stage popupStage = new Stage();
+        VBox popupLayout = new VBox(10);
+
+    	ObservableList<String> levelOptions = FXCollections.observableArrayList("All", "Beginner", "Intermediate", "Advanced", "Expert");
+        contentLevel = new ComboBox<>(levelOptions);
+        contentLevel.setValue("All"); // default choice is all
+        
+        submitButton = new Button("Submit");
+        submitButton.setOnAction(action -> {
+        	try {
+				boolean viewed = handleSubmit(database, "viewAll");
+				if (viewed)
+				{
+					popupStage.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+        });
+
+        popupLayout.getChildren().addAll(contentLevel, submitButton);
+        Scene popupScene = new Scene(popupLayout, 600, 400);
+        
+        popupStage.setScene(popupScene);
+        popupStage.setTitle("View Article");
+        popupStage.show();
+
     }
     
     private void searchArticle(DatabaseHelper database) throws SQLException
@@ -366,6 +440,42 @@ public class Dashboard
         popupStage.show();
     }
     
+    private void sendMessage(DatabaseHelper database) throws SQLException
+    {
+    	Stage popupStage = new Stage();
+        VBox popupLayout = new VBox(10);
+        
+        messageTitle = new TextField();
+        messageTitle.setPromptText("Enter the message title");
+
+        messageBody = new TextField();
+        messageBody.setPromptText("Enter the message body");
+        
+        ObservableList<String> typeOptions = FXCollections.observableArrayList("Generic", "Specific");
+        messageType = new ComboBox<>(typeOptions);
+        messageType.setValue("Generic"); // default answer is generic
+
+        submitButton = new Button("Submit");
+        submitButton.setOnAction(action -> {
+        	try {
+				boolean sent = handleSubmit(database, "sendMessage");
+				if (sent)
+				{
+					popupStage.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+        });
+
+        popupLayout.getChildren().addAll(messageTitle, messageBody, messageType, submitButton);
+        Scene popupScene = new Scene(popupLayout, 600, 400);
+        
+        popupStage.setScene(popupScene);
+        popupStage.setTitle("Send a Help Message");
+        popupStage.show();
+    }
+    
     private boolean handleSubmit(DatabaseHelper database, String type) throws SQLException
     {
     	//if the type is add then try adding the article to the database
@@ -409,15 +519,15 @@ public class Dashboard
     	}
     	else if (type == "view")
     	{
-    		String keywords = searchByKeyword.getText();
+    		String title = searchByTitle.getText();
     		
-    		if (keywords.isEmpty())
+    		if (title.isEmpty())
     		{
-    			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid keywords.");
+    			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter a valid title.");
                 return false;
     		}
     		
-    		boolean exists = database.articleExistsByKeyword(keywords);
+    		boolean exists = database.articleExistsByTitle(title);
     		
     		if (!exists)
     		{
@@ -427,7 +537,30 @@ public class Dashboard
 
     		
     		try {
-				database.displayArticleByKeyword(keywords);
+    			database.decryptDisplayArticles(title);
+			} catch (Exception e) {
+				e.printStackTrace();
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+				return false;
+			}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Article displayed in the console!\nThis window will now close");
+    		return true; // article was successfully viewed
+    	}
+    	
+    	else if (type == "viewAll")
+    	{
+    		String level = contentLevel.getValue().toLowerCase();
+    		
+    		try {
+    			// if the level is "All", display all articles with the title
+    			if (level.equals("all"))
+    			{
+    				database.decryptDisplayAllArticles();
+    			}
+    			else
+    			{
+    				database.decryptDisplayArticlesByLevel(level);
+    			}
 			} catch (Exception e) {
 				e.printStackTrace();
 				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
@@ -575,6 +708,28 @@ public class Dashboard
     		createAlert(Alert.AlertType.INFORMATION, "Success", "Articles were backed up!\nThis window will now close");
     		return true; // articles were backed up
 
+    	}
+    	else if (type == "sendMessage")
+    	{
+    		String title = messageTitle.getText();
+    		String body = messageBody.getText();
+    		String typeOfMessage = messageType.getValue();
+    		
+    		if (title.isEmpty() || body.isEmpty() || typeOfMessage.isEmpty())
+        	{
+        		createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid information.");
+                return false;
+        	}
+        		
+        	try {
+    			database.addMessage(title, body, typeOfMessage);
+    		} catch (Exception e) {
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+    			e.printStackTrace();
+    			return false;
+    		}
+        	createAlert(Alert.AlertType.INFORMATION, "Success", "Message successfully sent!\nThis window will now close");
+        	return true; //article was added
     	}
     	else
     	{

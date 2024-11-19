@@ -1,4 +1,4 @@
-package phaseTwo;
+package phaseThree;
 
 /*******
  * <p> Article Class </p>

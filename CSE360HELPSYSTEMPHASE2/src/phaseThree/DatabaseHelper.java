@@ -1,4 +1,4 @@
-package phaseTwo;
+package phaseThree;
 
 import java.sql.*;
 import java.sql.Connection;
@@ -56,6 +56,7 @@ class DatabaseHelper {
 			statement = connection.createStatement(); 
 			createTables();  // Create the necessary tables if they don't exist
 			createArticleTables();
+			createMessageTables();
 		} catch (ClassNotFoundException e) {
 			System.err.println("JDBC Driver not found: " + e.getMessage());
 		}
@@ -66,7 +67,9 @@ class DatabaseHelper {
 				+ "id INT AUTO_INCREMENT PRIMARY KEY, "
 				+ "email VARCHAR(255) UNIQUE, "
 				+ "password VARCHAR(255), "
-				+ "role VARCHAR(20))";
+				+ "role VARCHAR(20), "
+				+ "access_group VARCHAR(255), "
+				+ "first_instructor BOOLEAN DEFAULT FALSE)";
 		statement.execute(userTable);
 	}
 
@@ -79,23 +82,44 @@ class DatabaseHelper {
 		}
 		return true;
 	}
+	
+	//Check if the group has an instructor
+	public boolean doesGroupHaveInstructors(String group) throws SQLException {
+		String query = "SELECT COUNT(*) AS count FROM cse360users WHERE access_group = ? AND role = 'Instructor'";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, group);
+			try(ResultSet resultSet = pstmt.executeQuery(query)) {
+				if (resultSet.next()) {
+					return resultSet.getInt("count") > 0;
+				}
+				return false;
+			}
+		}
+	}
 
-	public void register(String email, String password, String role) throws SQLException {
-		String insertUser = "INSERT INTO cse360users (email, password, role) VALUES (?, ?, ?)";
+	public void register(String email, String password, String role, String group) throws SQLException {
+		String insertUser = "INSERT INTO cse360users (email, password, role, access_group, first_instructor) VALUES (?, ?, ?, ?, ?)";
 		try (PreparedStatement pstmt = connection.prepareStatement(insertUser)) {
 			pstmt.setString(1, email);
 			pstmt.setString(2, password);
 			pstmt.setString(3, role);
+			pstmt.setString(4, group);
+			if (role == "Instructor" && !doesGroupHaveInstructors(group)) {
+				pstmt.setBoolean(5, true);
+			} else {
+				pstmt.setBoolean(5, false);
+			}
 			pstmt.executeUpdate();
 		}
 	}
 
-	public boolean login(String email, String password, String role) throws SQLException {
-		String query = "SELECT * FROM cse360users WHERE email = ? AND password = ? AND role = ?";
+	public boolean login(String email, String password, String role, String group) throws SQLException {
+		String query = "SELECT * FROM cse360users WHERE email = ? AND password = ? AND role = ? AND access_group = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setString(1, email);
 			pstmt.setString(2, password);
 			pstmt.setString(3, role);
+			pstmt.setString(4, group);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				return rs.next();
 			}
@@ -119,7 +143,7 @@ class DatabaseHelper {
 	    return false; // If an error occurs, assume user doesn't exist
 	}
 
-	public void displayUsersByAdmin() throws SQLException{
+	public void displayAllUsers() throws SQLException{
 		String sql = "SELECT * FROM cse360users"; 
 		Statement stmt = connection.createStatement();
 		ResultSet rs = stmt.executeQuery(sql); 
@@ -129,18 +153,42 @@ class DatabaseHelper {
 			int id  = rs.getInt("id"); 
 			String  email = rs.getString("email"); 
 			String password = rs.getString("password"); 
-			String role = rs.getString("role");  
+			String role = rs.getString("role");
+			String group = rs.getString("access_group");
 
 			// Display values 
 			System.out.print("ID: " + id); 
 			System.out.print(", Age: " + email); 
 			System.out.print(", First: " + password); 
 			System.out.println(", Last: " + role); 
+			System.out.println(", Group: " + group); 
+		} 
+	}
+	
+	public void displayUsersByAdmin() throws SQLException{
+		String sql = "SELECT * FROM cse360users WHERE role = 'Admin'"; 
+		Statement stmt = connection.createStatement();
+		ResultSet rs = stmt.executeQuery(sql); 
+
+		while(rs.next()) { 
+			// Retrieve by column name 
+			int id  = rs.getInt("id"); 
+			String  email = rs.getString("email"); 
+			String password = rs.getString("password"); 
+			String role = rs.getString("role");
+			String group = rs.getString("access_group");
+
+			// Display values 
+			System.out.print("ID: " + id); 
+			System.out.print(", Age: " + email); 
+			System.out.print(", First: " + password); 
+			System.out.println(", Last: " + role); 
+			System.out.println(", Group: " + group); 
 		} 
 	}
 	
 	public void displayUsersByUser() throws SQLException{
-		String sql = "SELECT * FROM cse360users"; 
+		String sql = "SELECT * FROM cse360users WHERE role = 'Student'"; 
 		Statement stmt = connection.createStatement();
 		ResultSet rs = stmt.executeQuery(sql); 
 
@@ -150,12 +198,36 @@ class DatabaseHelper {
 			String  email = rs.getString("email"); 
 			String password = rs.getString("password"); 
 			String role = rs.getString("role");  
+			String group = rs.getString("access_group");
 
 			// Display values 
 			System.out.print("ID: " + id); 
 			System.out.print(", Age: " + email); 
 			System.out.print(", First: " + password); 
 			System.out.println(", Last: " + role); 
+			System.out.println(", Group: " + group); 
+		} 
+	}
+	
+	public void displayUsersByInstructor() throws SQLException{
+		String sql = "SELECT * FROM cse360users WHERE role = 'Instructor'"; 
+		Statement stmt = connection.createStatement();
+		ResultSet rs = stmt.executeQuery(sql); 
+
+		while(rs.next()) { 
+			// Retrieve by column name 
+			int id  = rs.getInt("id"); 
+			String  email = rs.getString("email"); 
+			String password = rs.getString("password"); 
+			String role = rs.getString("role");  
+			String group = rs.getString("access_group");
+
+			// Display values 
+			System.out.print("ID: " + id); 
+			System.out.print(", Age: " + email); 
+			System.out.print(", First: " + password); 
+			System.out.println(", Last: " + role); 
+			System.out.println(", Group: " + group); 
 		} 
 	}
 
@@ -178,7 +250,7 @@ class DatabaseHelper {
 		// Statement to create the help_articles table if it doesn't already exist
 		String articlesTable = "CREATE TABLE IF NOT EXISTS help_articles ("
 				+ "id INT AUTO_INCREMENT PRIMARY KEY, "
-				+ "title TEXT UNIQUE, "
+				+ "title TEXT, "
 				+ "header TEXT, "
 				+ "article_group TEXT, "
 				+ "description TEXT, "
@@ -189,19 +261,27 @@ class DatabaseHelper {
 		// Execute the SQL statement to create the table
 		statement.execute(articlesTable);
 	}
-		// Add Article to the help_articles table
+	
+	private String encryptedField(String field) throws Exception {
+	    byte[] encryptedBytes = encryptionHelper.encrypt(field);
+	    return Base64.getEncoder().encodeToString(encryptedBytes);
+	}
+
 	public void addArticle(String title, String header, char[] article_group, String description, char[] keywords, String body, String references) throws Exception {
+		String encryptedBody = encryptedField(body);
 		// SQL statement to insert a new article into the help_articles table
 		String insertArticle = "INSERT INTO help_articles (title, header, article_group, description, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		try (PreparedStatement pstmt = connection.prepareStatement(insertArticle)) {
-				// Setting parameters
+
+			// Setting parameters
 	        pstmt.setString(1, title);
 	        pstmt.setString(2, header);
-	        pstmt.setString(3, new String(article_group));
+	        pstmt.setString(3, new String(article_group).toLowerCase());
 	        pstmt.setString(4, description);
 	        pstmt.setString(5, new String(keywords));
-	        pstmt.setString(6, body);
+	        pstmt.setString(6, encryptedBody);
 	        pstmt.setString(7, references);
+
 	        
 	        // Execute the update
 	        pstmt.executeUpdate();
@@ -472,6 +552,188 @@ class DatabaseHelper {
 			}
 		}
 	}
+    
+    private String decryptField(String encryptedField) throws Exception {
+	    return encryptionHelper.decrypt(encryptedField);
+	}
+
+    public void decryptDisplayArticles(String file_name) throws Exception {
+	    String query = "SELECT * FROM help_articles WHERE title LIKE ?";
+	    
+	    // Prepare statement for searching articles by keyword
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, "%" + file_name + "%");  // Use wildcards to search for keyword within the string
+	        ResultSet resultSet = pstmt.executeQuery();
+	        
+	        // Track if articles were found
+	        boolean articleFound = false;
+	      
+	        // Iterate through the result set
+	        while (resultSet.next()) {
+	            articleFound = true;
+	            int id = resultSet.getInt("id");
+	            String articleTitle = resultSet.getString("title");
+	            String articleHeader = resultSet.getString("header");
+	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
+	            String articleDescription = resultSet.getString("description");
+	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
+	            String articleBody = decryptField(resultSet.getString("body"));
+	            String articleReferences = resultSet.getString("references");
+
+	            // Display the found article
+	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	          
+	            clearCharArray(articleKeywords);
+	        }
+	        
+	        // Error statement if article not found
+	        if (!articleFound) {
+	            System.out.println("No article found with the title: " + file_name);
+	        }
+	    }
+	}
+
+    public void decryptDisplayAllArticles() throws Exception {
+	    String query = "SELECT * FROM help_articles";
+	    
+	    // Prepare statement for searching articles by keyword
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        ResultSet resultSet = pstmt.executeQuery();
+	        
+	        // Track if articles were found
+	        boolean articleFound = false;
+	      
+	        // Iterate through the result set
+	        while (resultSet.next()) {
+	            articleFound = true;
+	            int id = resultSet.getInt("id");
+	            String articleTitle = resultSet.getString("title");
+	            String articleHeader = resultSet.getString("header");
+	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
+	            String articleDescription = resultSet.getString("description");
+	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
+	            String articleBody = decryptField(resultSet.getString("body"));
+	            String articleReferences = resultSet.getString("references");
+
+	            // Display the found article
+	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	          
+	            clearCharArray(articleKeywords);
+	        }
+	        
+	        // Error statement if articles not found
+	        if (!articleFound) {
+	            System.out.println("No articles found");
+	        }
+	    }
+	}
+
+    
+    public void decryptDisplayArticlesByLevel(String level) throws Exception {
+	    String query = "SELECT * FROM help_articles WHERE article_group = ?";
+	    
+	    // Prepare statement for searching articles by keyword
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, level);
+	        ResultSet resultSet = pstmt.executeQuery();
+	        
+	        // Track if articles were found
+	        boolean articleFound = false;
+	      
+	        // Iterate through the result set
+	        while (resultSet.next()) {
+	            articleFound = true;
+	            int id = resultSet.getInt("id");
+	            String articleTitle = resultSet.getString("title");
+	            String articleHeader = resultSet.getString("header");
+	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
+	            String articleDescription = resultSet.getString("description");
+	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
+	            String articleBody = decryptField(resultSet.getString("body"));
+	            String articleReferences = resultSet.getString("references");
+
+	            // Display the found article
+	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	          
+	            clearCharArray(articleKeywords);
+	        }
+	        
+	        // Error statement if article not found
+	        if (!articleFound) {
+	            System.out.println("No article found with the content level: " + level);
+	        }
+	    }
+	}
+
+    
+    // Create the help_messages table in the database
+ 	private void createMessageTables() throws SQLException {
+ 		// Statement to create the help_messages table if it doesn't already exist
+ 		String messageTable = "CREATE TABLE IF NOT EXISTS help_messages ("
+ 				+ "id INT AUTO_INCREMENT PRIMARY KEY, "
+ 				+ "title TEXT, "
+ 		 		+ "body TEXT,"
+ 		 		+ "type TEXT)";
+ 		
+ 		// Execute the SQL statement to create the table
+ 		statement.execute(messageTable);
+ 	}
+ 	
+ 	// Displays the details of a single help message
+ 	private void displayMessageConsole(int id, String title, String body, String type) {
+ 		System.out.println("ID: " + id);
+ 	    System.out.println("Title: " + new String(title));
+ 	    System.out.println("Body: " + new String(body));
+ 	   System.out.println("Message Type: " + new String(type));
+ 	    
+ 	 // Separator for clarity
+ 	    System.out.println("--------------------------");
+ 	}
+ 	// Displays all help messages
+ 	public void displayMessages() throws Exception {
+ 	    String query = "SELECT * FROM help_messages";
+ 	    
+ 	    // Prepare statement for searching messages
+ 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+ 	        ResultSet resultSet = pstmt.executeQuery();
+ 	        
+ 	        // Track if messages were found
+ 	        boolean messageFound = false;
+ 	        
+ 	        // Iterate through the result set
+ 	        while (resultSet.next()) {
+ 	        	messageFound = true;
+ 	            int id = resultSet.getInt("id");
+ 	            String messageTitle = resultSet.getString("title");
+ 	            String messageBody = resultSet.getString("body");
+ 	           String messageType = resultSet.getString("type");
+ 		        // Display the found message
+ 	            displayMessageConsole(id, messageTitle, messageBody, messageType);
+ 	        }
+ 	        
+ 	        // Error statement if messages not found
+ 	        if (!messageFound) {
+ 	            System.out.println("No help messages found");
+ 	        }
+ 	    }
+ 	}
+ 	
+ 	public void addMessage(String title, String body, String type) throws Exception {
+		// SQL statement to insert a new message into the help_messages table
+		String insertMessage = "INSERT INTO help_messages (title, body, type) VALUES (?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(insertMessage)) {
+
+			// Setting parameters
+	        pstmt.setString(1, title);
+	        pstmt.setString(2, body);
+	        pstmt.setString(3, type);
+
+	        
+	        // Execute the update
+	        pstmt.executeUpdate();
+	    }
+	}
+
 	    
     private void clearDatabase() throws SQLException {
         String deleteQuery = "DELETE FROM help_articles";
