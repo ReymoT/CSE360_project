@@ -35,6 +35,8 @@ public class UserGUI extends Application
     private ComboBox<String> roleList; // drop-down list for choosing the role
     private ComboBox<String> accessGroup; //drop-down list for choosing the special access group
     
+    String rights = null; // rights to be passed to the dashboard
+    
     private DatabaseHelper database; //new instance of the database helper
     
     public UserGUI() throws Exception
@@ -88,8 +90,10 @@ public class UserGUI extends Application
 				if (validUser)
 				{
 					String role = roleList.getValue();
+					String group = accessGroup.getValue();
+					String email = emailField.getText();
 					Dashboard dashboard = new Dashboard();
-		        	Scene dashboardScene = dashboard.createScene(database, role);
+		        	Scene dashboardScene = dashboard.createScene(database, role, rights, group);
 
 		            theStage.setScene(dashboardScene);
 		            theStage.setTitle("Home Screen");
@@ -138,11 +142,14 @@ public class UserGUI extends Application
         if (database.login(email, password, roleValue, groupValue))
         {
         	createAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + email + "\nYour group is: " + groupValue);
+        	rights = database.getUserRights(email); // update user rights
+        	System.out.println(rights);
+        	database.displayAllUsers();
         	return true;
         } 
         else
         {
-        	createAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid email or password.");
+        	createAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid email or password or group number.");
         	return false;
         }
     }
@@ -160,6 +167,42 @@ public class UserGUI extends Application
         String roleValue = roleList.getValue();
         String groupValue = accessGroup.getValue();
         
+        /*
+         * Add - a
+         * View - v
+         * Search - s
+         * Edit - e
+         * Delete - d
+         * Backup - b
+         * Restore - r
+         * Display Help - h
+         * Modify Student Members - m
+         */
+        
+        String rightsValue = null;
+        
+        if (roleValue.equals("Student"))
+        {
+        	rightsValue = "v, s";
+        }
+        else if (roleValue.equals("Instructor"))
+        {
+        	boolean hasInstructors = database.doesGroupHaveInstructors(groupValue);
+        	if (!hasInstructors)
+        	{
+        		rightsValue = "a, v, s, e, d, b, r, h, m";
+        	}
+        	else
+        	{
+        		rightsValue = "a, v, s, e, d, b, r, m";
+        	}
+        }
+        else
+        {
+        	rightsValue = "a, v, s, e, d, b, r, h";
+        }
+        rights = rightsValue;
+        
         char[] securePassword = password.toCharArray(); //non-string type secure password
         Role role = new Role(roleValue); // new instance of a role
         
@@ -175,8 +218,8 @@ public class UserGUI extends Application
         }
 
         // Instance of a new user
-        User newUser = new User(email, userName, securePassword, firstName, middleName, lastName, preferredName, role);
-        database.register(email, password, roleValue, groupValue); // register the new user
+        //User newUser = new User(email, userName, securePassword, firstName, middleName, lastName, preferredName, role);
+        database.register(email, password, roleValue, groupValue, rightsValue); // register the new user
 
         createAlert(Alert.AlertType.INFORMATION, "Registration Successful", "Account created successfully.");
     }

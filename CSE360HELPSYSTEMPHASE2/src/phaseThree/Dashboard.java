@@ -10,6 +10,8 @@ import javafx.collections.*;
 
 //SQL Import
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 
 /*******
  * <p> Dashboard Class </p>
@@ -34,9 +36,13 @@ public class Dashboard
     private Button displayMessagesButton; // button to display all messages
     private Button sendMessageButton; // button to send messages
     private Button viewAllArticlesButton; // button to view all articles
+    private Button modifyRightsButton; //button to modify rights
+    private Button modifyStudentsButton; // button to modify student groups
+    private ComboBox<String> newGroup; // list for choosing a new group for the student
     
     private TextField titleField; // field to enter the title
 	private TextField headerField; // field to enter the header
+	private TextField authorField; // field to enter the author
 	private TextField articleGroupField; // field to enter the article group
 	private TextField descriptionField; // field to enter the description
 	private TextField keywordsField; // field to enter the keywords
@@ -58,16 +64,19 @@ public class Dashboard
 	private TextField messageBody; // field to enter the body for the help message
 	private ComboBox<String> messageType; // drop-down list for choosing the type of message
 	
+	private TextField emailField; // field for entering the email
+	private TextField rightsField; // field for entering the rights
+	
 	private ComboBox<String> contentLevel; // drop-down list for choosing the content level of articles
 
 
-    public Scene createScene(DatabaseHelper database, String role)
+    public Scene createScene(DatabaseHelper database, String role, String rights, String group)
     {
     	VBox layout = new VBox(10);
         addButton = new Button("Add Article");
         addButton.setOnAction(action -> {
 			try {
-				addArticle(database);
+				addArticle(database, group);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -76,7 +85,7 @@ public class Dashboard
         viewButton = new Button("View Article");
         viewButton.setOnAction(action -> {
 			try {
-				viewArticle(database);
+				viewArticle(database, group);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -85,7 +94,7 @@ public class Dashboard
         viewAllArticlesButton = new Button("View All Articles");
         viewAllArticlesButton.setOnAction(action -> {
 			try {
-				viewAllArticles(database);
+				viewAllArticles(database, group);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -94,7 +103,7 @@ public class Dashboard
         searchButton = new Button("Search Article");
         searchButton.setOnAction(action -> {
 			try {
-				searchArticle(database);
+				searchArticle(database, group);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -103,7 +112,7 @@ public class Dashboard
         editButton = new Button("Edit Article");
         editButton.setOnAction(action -> {
 			try {
-				editArticle(database);
+				editArticle(database, group);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -112,7 +121,7 @@ public class Dashboard
         deleteButton = new Button("Delete Article");
         deleteButton.setOnAction(action -> {
 			try {
-				deleteArticle(database);
+				deleteArticle(database, group);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -121,7 +130,7 @@ public class Dashboard
         backupButton = new Button("Backup Article");
         backupButton.setOnAction(action -> {
 			try {
-				backupArticle(database);
+				backupArticle(database, group);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -131,7 +140,7 @@ public class Dashboard
         restoreButton = new Button("Restore Article");
         restoreButton.setOnAction(action -> {
 			try {
-				restoreArticle(database);
+				restoreArticle(database, group);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -151,23 +160,75 @@ public class Dashboard
         sendMessageButton.setOnAction(action -> {
 			try {
 				//Send a help message
-				sendMessage(database);
+				sendMessage(database, group);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		});
         
-        if (role == "Admin")
-        {
-        	layout.getChildren().addAll(addButton, viewButton, viewAllArticlesButton, searchButton, editButton, deleteButton, backupButton, restoreButton, displayMessagesButton);
-        } else {
-        	layout.getChildren().addAll(viewButton, viewAllArticlesButton, searchButton, sendMessageButton);
-        }
+        modifyRightsButton = new Button("Modify Rights");
+        modifyRightsButton.setOnAction(action -> {
+			try {
+				modifyRights(database, group);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+        
+        modifyStudentsButton = new Button("Modify Students");
+        modifyStudentsButton.setOnAction(action -> {
+			try {
+				modifyStudents(database, group);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+        
+        List<String> userRights = Arrays.asList(rights.split(",\\s*"));
+		if (userRights.contains("a"))
+		{
+			layout.getChildren().add(addButton);
+		}
+		if (userRights.contains("v"))
+		{
+			layout.getChildren().add(viewButton);
+			layout.getChildren().add(viewAllArticlesButton);
+			layout.getChildren().add(sendMessageButton);
+		}
+		if (userRights.contains("s"))
+		{
+			layout.getChildren().add(searchButton);
+		}
+		if (userRights.contains("e"))
+		{
+			layout.getChildren().add(editButton);
+		}
+		if (userRights.contains("d"))
+		{
+			layout.getChildren().add(deleteButton);
+		}
+		if (userRights.contains("b"))
+		{
+			layout.getChildren().add(backupButton);
+		}
+		if (userRights.contains("r"))
+		{
+			layout.getChildren().add(restoreButton);
+		}
+		if (userRights.contains("h"))
+		{
+			layout.getChildren().add(displayMessagesButton);
+			layout.getChildren().add(modifyRightsButton);
+		}
+		if (userRights.contains("m"))
+		{
+			layout.getChildren().add(modifyStudentsButton);
+		}
         Scene theScene = new Scene(layout, 800, 600);
         return theScene;
     }
 
-    private void addArticle(DatabaseHelper database) throws SQLException
+    private void addArticle(DatabaseHelper database, String group) throws SQLException
     {    	
     	Stage popupStage = new Stage();
         VBox popupLayout = new VBox(10);
@@ -178,8 +239,8 @@ public class Dashboard
         headerField = new TextField();
         headerField.setPromptText("Enter the header:");
         
-        articleGroupField = new TextField();
-        articleGroupField.setPromptText("Enter the article group:");
+        authorField = new TextField();
+        authorField.setPromptText("Enter the author:");
         
         descriptionField = new TextField();
         descriptionField.setPromptText("Enter the description:");
@@ -196,7 +257,7 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				boolean added = handleSubmit(database, "add");
+				boolean added = handleSubmit(database, "add", group);
 				if (added)
 				{
 					popupStage.close(); // close the pop up window
@@ -206,7 +267,7 @@ public class Dashboard
 			}
         });
 
-        popupLayout.getChildren().addAll(titleField, headerField, articleGroupField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
+        popupLayout.getChildren().addAll(titleField, headerField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
         
         popupStage.setScene(popupScene);
@@ -214,7 +275,7 @@ public class Dashboard
         popupStage.show();
     }
 
-    private void viewArticle(DatabaseHelper database) throws SQLException
+    private void viewArticle(DatabaseHelper database, String group) throws SQLException
     {
     	Stage popupStage = new Stage();
         VBox popupLayout = new VBox(10);
@@ -225,7 +286,7 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				boolean viewed = handleSubmit(database, "view");
+				boolean viewed = handleSubmit(database, "view", group);
 				if (viewed)
 				{
 					popupStage.close();
@@ -243,7 +304,7 @@ public class Dashboard
         popupStage.show();
     }
     
-    private void viewAllArticles(DatabaseHelper database) throws SQLException
+    private void viewAllArticles(DatabaseHelper database, String group) throws SQLException
     {    	
     	Stage popupStage = new Stage();
         VBox popupLayout = new VBox(10);
@@ -255,7 +316,7 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				boolean viewed = handleSubmit(database, "viewAll");
+				boolean viewed = handleSubmit(database, "viewAll", group);
 				if (viewed)
 				{
 					popupStage.close();
@@ -274,7 +335,7 @@ public class Dashboard
 
     }
     
-    private void searchArticle(DatabaseHelper database) throws SQLException
+    private void searchArticle(DatabaseHelper database, String group) throws SQLException
     {
     	Stage popupStage = new Stage();
         VBox popupLayout = new VBox(10);
@@ -285,7 +346,11 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				handleSubmit(database, "search");
+				boolean success = handleSubmit(database, "search", group);
+				if (success)
+				{
+					
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -297,10 +362,9 @@ public class Dashboard
         popupStage.setScene(popupScene);
         popupStage.setTitle("Search Article");
         popupStage.show();
-
     }
     
-    private void editArticle(DatabaseHelper database) throws SQLException
+    private void editArticle(DatabaseHelper database, String group) throws SQLException
     {
     	//TODO: Implement edit functionality; delete the article and add a new one with new info
     	Stage popupStage = new Stage();
@@ -312,8 +376,8 @@ public class Dashboard
         headerField = new TextField();
         headerField.setPromptText("Enter the NEW header:");
         
-        articleGroupField = new TextField();
-        articleGroupField.setPromptText("Enter the NEW article group:");
+        authorField = new TextField();
+        authorField.setPromptText("Enter the NEW author:");
         
         descriptionField = new TextField();
         descriptionField.setPromptText("Enter the NEW description:");
@@ -330,7 +394,7 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				boolean edited = handleSubmit(database, "edit");
+				boolean edited = handleSubmit(database, "edit", group);
 				if (edited)
 				{
 					popupStage.close(); // close the pop up window
@@ -340,7 +404,7 @@ public class Dashboard
 			}
         });
 
-        popupLayout.getChildren().addAll(titleField, headerField, articleGroupField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
+        popupLayout.getChildren().addAll(titleField, headerField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
         
         popupStage.setScene(popupScene);
@@ -348,7 +412,7 @@ public class Dashboard
         popupStage.show();
     }
     
-    private void deleteArticle(DatabaseHelper database) throws SQLException
+    private void deleteArticle(DatabaseHelper database, String group) throws SQLException
     {
     	Stage popupStage = new Stage();
         VBox popupLayout = new VBox(10);
@@ -359,7 +423,7 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				boolean deleted = handleSubmit(database, "delete");
+				boolean deleted = handleSubmit(database, "delete", group);
 				if (deleted)
 				{
 					popupStage.close();
@@ -378,7 +442,7 @@ public class Dashboard
 
     }
     
-    private void backupArticle(DatabaseHelper database) throws SQLException
+    private void backupArticle(DatabaseHelper database, String group) throws SQLException
     {
     	Stage popupStage = new Stage();
         VBox popupLayout = new VBox(10);
@@ -389,7 +453,7 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				boolean backedup = handleSubmit(database, "backup");
+				boolean backedup = handleSubmit(database, "backup", group);
 				if (backedup)
 				{
 					popupStage.close();
@@ -407,7 +471,7 @@ public class Dashboard
         popupStage.show();
     }
     
-    private void restoreArticle(DatabaseHelper database) throws SQLException
+    private void restoreArticle(DatabaseHelper database, String group) throws SQLException
     {
     	Stage popupStage = new Stage();
         VBox popupLayout = new VBox(10);
@@ -422,7 +486,7 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				boolean restored = handleSubmit(database, "backup");
+				boolean restored = handleSubmit(database, "backup", group);
 				if (restored)
 				{
 					popupStage.close();
@@ -440,7 +504,7 @@ public class Dashboard
         popupStage.show();
     }
     
-    private void sendMessage(DatabaseHelper database) throws SQLException
+    private void sendMessage(DatabaseHelper database, String group) throws SQLException
     {
     	Stage popupStage = new Stage();
         VBox popupLayout = new VBox(10);
@@ -458,7 +522,7 @@ public class Dashboard
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
         	try {
-				boolean sent = handleSubmit(database, "sendMessage");
+				boolean sent = handleSubmit(database, "sendMessage", group);
 				if (sent)
 				{
 					popupStage.close();
@@ -476,7 +540,72 @@ public class Dashboard
         popupStage.show();
     }
     
-    private boolean handleSubmit(DatabaseHelper database, String type) throws SQLException
+    private void modifyRights(DatabaseHelper database, String group) throws SQLException
+    {
+    	Stage popupStage = new Stage();
+        VBox popupLayout = new VBox(10);
+        
+        emailField = new TextField();
+        emailField.setPromptText("Enter the email");
+
+        rightsField = new TextField();
+        rightsField.setPromptText("Enter the rights");
+
+        submitButton = new Button("Submit");
+        submitButton.setOnAction(action -> {
+        	try {
+				boolean sent = handleSubmit(database, "modifyRights", group);
+				if (sent)
+				{
+					popupStage.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+        });
+
+        popupLayout.getChildren().addAll(emailField, rightsField, submitButton);
+        Scene popupScene = new Scene(popupLayout, 600, 400);
+        
+        popupStage.setScene(popupScene);
+        popupStage.setTitle("Modify Rights of Users");
+        popupStage.show();
+    }
+    
+    private void modifyStudents(DatabaseHelper database, String group) throws SQLException
+    {
+    	Stage popupStage = new Stage();
+        VBox popupLayout = new VBox(10);
+        
+        emailField = new TextField();
+        emailField.setPromptText("Enter the email");
+
+        ObservableList<String> groupOptions = FXCollections.observableArrayList("Group 1", "Group 2", "Group 3");
+        newGroup = new ComboBox<>(groupOptions);
+        newGroup.setValue("Group 1"); // default role is Group 1
+
+        submitButton = new Button("Submit");
+        submitButton.setOnAction(action -> {
+        	try {
+				boolean sent = handleSubmit(database, "modifyStudents", group);
+				if (sent)
+				{
+					popupStage.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+        });
+
+        popupLayout.getChildren().addAll(emailField, newGroup, submitButton);
+        Scene popupScene = new Scene(popupLayout, 600, 400);
+        
+        popupStage.setScene(popupScene);
+        popupStage.setTitle("Modify Groups of Users");
+        popupStage.show();
+    }
+    
+    private boolean handleSubmit(DatabaseHelper database, String type, String group) throws SQLException
     {
     	//if the type is add then try adding the article to the database
     	if (type == "add")
@@ -484,31 +613,32 @@ public class Dashboard
     		//extract all the information from the fields
     		String title = titleField.getText();
     		String header = headerField.getText();
-    		String articleGroupString = articleGroupField.getText();
-    		char[] articleGroup = articleGroupString.toCharArray();
+    		String author = authorField.getText();
     		String description = descriptionField.getText();
     		String keywordsString = keywordsField.getText();
     		char[] keywords = keywordsString.toCharArray();
     		String body = bodyField.getText();
     		String references = referencesField.getText();
     		
-    		if (title.isEmpty() || header.isEmpty() || articleGroupString.isEmpty() ||
+    		char[] groupValue = group.toCharArray();
+    		
+    		if (title.isEmpty() || header.isEmpty() || author.isEmpty() ||
     			description.isEmpty() || keywordsString.isEmpty() || body.isEmpty() || references.isEmpty())
     		{
     			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid information.");
                 return false;
     		}
     		
-    		boolean exists = database.articleExistsByKeyword(keywordsString);
+    		boolean exists = database.articleExistsByTitle(title, group);
     		
     		if (exists)
     		{
-    			createAlert(Alert.AlertType.ERROR, "Error!", "Article already exists.");
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Article with that title already exists.");
                 return false;
     		}
     		
     		try {
-				database.addArticle(title, header, articleGroup, description, keywords, body, references);
+				database.addArticle(title, header, author, groupValue, description, keywords, body, references);
 			} catch (Exception e) {
 				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
 				e.printStackTrace();
@@ -527,17 +657,17 @@ public class Dashboard
                 return false;
     		}
     		
-    		boolean exists = database.articleExistsByTitle(title);
+    		boolean exists = database.articleExistsByTitle(title, group);
     		
     		if (!exists)
     		{
-    			createAlert(Alert.AlertType.ERROR, "Error!", "Article doesn't exist.");
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Article doesn't exist in your group.");
                 return false;
     		}
 
     		
     		try {
-    			database.decryptDisplayArticles(title);
+    			database.decryptDisplayArticles(title, group);
 			} catch (Exception e) {
 				e.printStackTrace();
 				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
@@ -555,11 +685,11 @@ public class Dashboard
     			// if the level is "All", display all articles with the title
     			if (level.equals("all"))
     			{
-    				database.decryptDisplayAllArticles();
+    				database.decryptDisplayAllArticles(group);
     			}
     			else
     			{
-    				database.decryptDisplayArticlesByLevel(level);
+    				database.decryptDisplayArticlesByLevel(level, group);
     			}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -580,27 +710,24 @@ public class Dashboard
                 return false;
     		}
     		
-    		boolean exists = database.articleExistsByKeyword(keywords);
-    		
-    		if (exists)
+    		try
     		{
-                createAlert(Alert.AlertType.INFORMATION, "Success", "Article exists!");
-        		return true; // article does exist
-    		}
-    		else
-    		{
-    			createAlert(Alert.AlertType.ERROR, "Error!", "Article doesn't exist.");
-                return false; // article doesn't exist
-    		}
-
+    			database.decryptDisplayArticlesByKeyword(keywords, group);
+    		} catch (Exception e) {
+				e.printStackTrace();
+				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+				return false;
+			}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Article displayed in the console!");
+    		return true;
     	}
     	else if (type == "edit")
     	{
     		//extract all necessary information
     		String newTitle = titleField.getText();
     		String newHeader = headerField.getText();
-    		String newArticleGroupString = articleGroupField.getText();
-    		char[] newArticleGroup = newArticleGroupString.toCharArray();
+    		String newAuthor = authorField.getText();
+    		char[] newArticleGroup = group.toCharArray();
     		String newDescription = descriptionField.getText();
     		String newKeywordsString = keywordsField.getText();
     		char[] newKeywords = newKeywordsString.toCharArray();
@@ -610,14 +737,14 @@ public class Dashboard
     		Article toBeEdited;
     		
     		//if the fields are empty, we prompt the user
-    		if (newTitle.isEmpty() || newHeader.isEmpty() || newArticleGroupString.isEmpty() ||
+    		if (newTitle.isEmpty() || newHeader.isEmpty() || newAuthor.isEmpty() ||
     				newDescription.isEmpty() || newKeywordsString.isEmpty() || newBody.isEmpty() || newReferences.isEmpty())
     		{
     			createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid information.");
                 return false;
     		}
     		
-    		boolean exists = database.articleExistsByKeyword(newKeywordsString);
+    		boolean exists = database.articleExistsByKeyword(newKeywordsString, group);
     		
     		//if the article doesn't exist, prompt the user
     		if (!exists)
@@ -628,7 +755,7 @@ public class Dashboard
     		
     		//we return an article that matches the keywords
     		try {
-				toBeEdited = database.returnArticleByKeyword(newKeywordsString);
+				toBeEdited = database.returnArticleByKeyword(newKeywordsString, group);
 			} catch (Exception e) {
 				e.printStackTrace();
 				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
@@ -639,7 +766,7 @@ public class Dashboard
     		
     		//delete the old article and add a new one with updated information
     		try {
-				database.deleteArticle(oldTitle);
+				database.deleteArticle(oldTitle, group);
 			} catch (Exception e) {
 				e.printStackTrace();
 				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
@@ -647,7 +774,7 @@ public class Dashboard
 			}
     		
     		try {
-				database.addArticle(newTitle, newHeader, newArticleGroup, newDescription, newKeywords, newBody, newReferences);
+				database.addArticle(newTitle, newHeader,  newAuthor, newArticleGroup, newDescription, newKeywords, newBody, newReferences);
 			} catch (Exception e) {
 				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
 				e.printStackTrace();
@@ -668,7 +795,7 @@ public class Dashboard
                 return false;
     		}
     		
-    		boolean exists = database.articleExistsByTitle(title);
+    		boolean exists = database.articleExistsByTitle(title, group);
     		
     		//if the article doesn't exist, prompt the user
     		if (!exists)
@@ -678,7 +805,7 @@ public class Dashboard
     		}
     		
     		try {
-				database.deleteArticle(title);
+				database.deleteArticle(title, group);
 			} catch (Exception e) {
 				e.printStackTrace();
 				createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
@@ -730,6 +857,48 @@ public class Dashboard
     		}
         	createAlert(Alert.AlertType.INFORMATION, "Success", "Message successfully sent!\nThis window will now close");
         	return true; //article was added
+    	}
+    	else if (type == "modifyRights")
+    	{
+    		String email = emailField.getText();
+    		String rights = rightsField.getText();
+    		
+    		if (email.isEmpty() || rights.isEmpty())
+        	{
+        		createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid information.");
+                return false;
+        	}
+    		
+    		try {
+    			database.updateUserRights(email, rights);
+    		} catch (Exception e) {
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+    			e.printStackTrace();
+    			return false;
+    		}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Rights successfully modified!\nThis window will now close");
+    		return true;
+    	}
+    	else if (type == "modifyStudents")
+    	{
+    		String email = emailField.getText();
+    		String studentGroup = newGroup.getValue();
+    		
+    		if (email.isEmpty() || studentGroup.isEmpty())
+        	{
+        		createAlert(Alert.AlertType.ERROR, "Form Error!", "Please enter valid information.");
+                return false;
+        	}
+    		
+    		try {
+    			database.updateUserGroup(email, studentGroup);
+    		} catch (Exception e) {
+    			createAlert(Alert.AlertType.ERROR, "Error!", "Something went wrong.\nPlease try again");
+    			e.printStackTrace();
+    			return false;
+    		}
+    		createAlert(Alert.AlertType.INFORMATION, "Success", "Group members have been updated!\nThis window will now close");
+    		return true;
     	}
     	else
     	{

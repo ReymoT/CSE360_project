@@ -24,6 +24,7 @@ import Encryption.EncryptionUtils;
  * 
  * @author Ishita
  * @author Leya
+ * @author Morad
  * 
  */
 
@@ -68,7 +69,8 @@ class DatabaseHelper {
 				+ "email VARCHAR(255) UNIQUE, "
 				+ "password VARCHAR(255), "
 				+ "role VARCHAR(20), "
-				+ "access_group VARCHAR(255), "
+				+ "access_group VARCHAR(20), "
+				+ "rights VARCHAR(255), " // Add rights column
 				+ "first_instructor BOOLEAN DEFAULT FALSE)";
 		statement.execute(userTable);
 	}
@@ -85,10 +87,11 @@ class DatabaseHelper {
 	
 	//Check if the group has an instructor
 	public boolean doesGroupHaveInstructors(String group) throws SQLException {
-		String query = "SELECT COUNT(*) AS count FROM cse360users WHERE access_group = ? AND role = 'Instructor'";
+		String query = "SELECT COUNT(*) AS count FROM cse360users WHERE access_group = ? AND role = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setString(1, group);
-			try(ResultSet resultSet = pstmt.executeQuery(query)) {
+			pstmt.setString(2, "Instructor");
+			try(ResultSet resultSet = pstmt.executeQuery()) {
 				if (resultSet.next()) {
 					return resultSet.getInt("count") > 0;
 				}
@@ -97,20 +100,20 @@ class DatabaseHelper {
 		}
 	}
 
-	public void register(String email, String password, String role, String group) throws SQLException {
-		String insertUser = "INSERT INTO cse360users (email, password, role, access_group, first_instructor) VALUES (?, ?, ?, ?, ?)";
-		try (PreparedStatement pstmt = connection.prepareStatement(insertUser)) {
-			pstmt.setString(1, email);
-			pstmt.setString(2, password);
-			pstmt.setString(3, role);
-			pstmt.setString(4, group);
-			if (role == "Instructor" && !doesGroupHaveInstructors(group)) {
-				pstmt.setBoolean(5, true);
-			} else {
-				pstmt.setBoolean(5, false);
-			}
-			pstmt.executeUpdate();
-		}
+	public void register(String email, String password, String role, String group, String rights) throws SQLException {
+		String insertUser = "INSERT INTO cse360users (email, password, role, access_group, rights, first_instructor) VALUES (?, ?, ?, ?, ?, ?)";
+
+	    try (PreparedStatement pstmt = connection.prepareStatement(insertUser)) {
+	        pstmt.setString(1, email);
+	        pstmt.setString(2, password);
+	        pstmt.setString(3, role);
+	        pstmt.setString(4, group);
+	        pstmt.setString(5, rights);
+	        pstmt.setBoolean(6, role.equals("Instructor") && !doesGroupHaveInstructors(group));
+
+	        pstmt.executeUpdate();
+
+	    }
 	}
 
 	public boolean login(String email, String password, String role, String group) throws SQLException {
@@ -124,6 +127,51 @@ class DatabaseHelper {
 				return rs.next();
 			}
 		}
+	}
+	
+	public boolean hasRight(String email, String right) throws SQLException {
+
+	    String rights = getUserRights(email);
+
+	    return rights.indexOf(right) >= 0;
+
+	}
+
+	
+
+	public String getUserRights(String email) throws SQLException {
+	    String query = "SELECT * FROM cse360users WHERE email = ?";
+
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, email);
+	        ResultSet rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            return rs.getString("rights");
+	        }
+	    }
+	    return ""; // Default to no rights if not found
+	}
+
+	
+
+	public void updateUserRights(String email, String newRights) throws SQLException {
+	    String updateQuery = "UPDATE cse360users SET rights = ? WHERE email = ?";
+
+	    try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+	        pstmt.setString(1, newRights);
+	        pstmt.setString(2, email);
+	        pstmt.executeUpdate();
+	    }
+	}
+
+	public void updateUserGroup(String email, String newGroup) throws SQLException {
+	    String updateQuery = "UPDATE cse360users SET access_group = ? WHERE email = ?";
+
+	    try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+	        pstmt.setString(1, newGroup);
+	        pstmt.setString(2, email);
+	        pstmt.executeUpdate();
+	    }
 	}
 	
 	public boolean doesUserExist(String email) {
@@ -158,9 +206,9 @@ class DatabaseHelper {
 
 			// Display values 
 			System.out.print("ID: " + id); 
-			System.out.print(", Age: " + email); 
-			System.out.print(", First: " + password); 
-			System.out.println(", Last: " + role); 
+			System.out.print(", Email: " + email); 
+			System.out.print(", Password: " + password); 
+			System.out.println(", Role: " + role); 
 			System.out.println(", Group: " + group); 
 		} 
 	}
@@ -252,6 +300,7 @@ class DatabaseHelper {
 				+ "id INT AUTO_INCREMENT PRIMARY KEY, "
 				+ "title TEXT, "
 				+ "header TEXT, "
+				+ "author TEXT, "
 				+ "article_group TEXT, "
 				+ "description TEXT, "
 				+ "keywords TEXT, "
@@ -267,20 +316,21 @@ class DatabaseHelper {
 	    return Base64.getEncoder().encodeToString(encryptedBytes);
 	}
 
-	public void addArticle(String title, String header, char[] article_group, String description, char[] keywords, String body, String references) throws Exception {
+	public void addArticle(String title, String header, String author, char[] article_group, String description, char[] keywords, String body, String references) throws Exception {
 		String encryptedBody = encryptedField(body);
 		// SQL statement to insert a new article into the help_articles table
-		String insertArticle = "INSERT INTO help_articles (title, header, article_group, description, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		String insertArticle = "INSERT INTO help_articles (title, header, author, article_group, description, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		try (PreparedStatement pstmt = connection.prepareStatement(insertArticle)) {
 
 			// Setting parameters
 	        pstmt.setString(1, title);
 	        pstmt.setString(2, header);
-	        pstmt.setString(3, new String(article_group).toLowerCase());
-	        pstmt.setString(4, description);
-	        pstmt.setString(5, new String(keywords));
-	        pstmt.setString(6, encryptedBody);
-	        pstmt.setString(7, references);
+	        pstmt.setString(3, author);
+	        pstmt.setString(4, new String(article_group).toLowerCase());
+	        pstmt.setString(5, description);
+	        pstmt.setString(6, new String(keywords));
+	        pstmt.setString(7, encryptedBody);
+	        pstmt.setString(8, references);
 
 	        
 	        // Execute the update
@@ -289,11 +339,12 @@ class DatabaseHelper {
 	}
 
 	// Delete the article from the database by its title
-	public void deleteArticle(String title) throws SQLException {
-        String deleteQuery = "DELETE FROM help_articles WHERE title = ?";
+	public void deleteArticle(String title, String group) throws SQLException {
+        String deleteQuery = "DELETE FROM help_articles WHERE title = ? AND article_group = ?";
 	        // Prepare the SQL statement
         try (PreparedStatement pstmt = connection.prepareStatement(deleteQuery)) {
             pstmt.setString(1, title);
+            pstmt.setString(2, group);
             pstmt.executeUpdate();
         }
     }
@@ -309,6 +360,7 @@ class DatabaseHelper {
 	            int id = resultSet.getInt("id");
 	            String articleTitle = resultSet.getString("title");
 	            String articleHeader = resultSet.getString("header");
+	            String articleAuthor = resultSet.getString("author");
 	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
 	            String articleDescription = resultSet.getString("description");
 	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
@@ -316,7 +368,7 @@ class DatabaseHelper {
 	            String articleReferences = resultSet.getString("references");
 
 	            // Call method to print to console
-	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	            displayArticleConsole(id, articleTitle, articleHeader, articleAuthor, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
 	            
 	            clearCharArray(articleKeywords);
 	        }
@@ -324,10 +376,11 @@ class DatabaseHelper {
 	}
 		
 	// Displays the details of a single article
-	private void displayArticleConsole(int id, String title, String header, char[] article_group, String description, char[] keywords, String body, String references) {
+	private void displayArticleConsole(int id, String title, String header, String author, char[] article_group, String description, char[] keywords, String body, String references) {
 		System.out.println("ID: " + id);
 	    System.out.println("Title: " + new String(title));
 	    System.out.println("Header: " + new String(header));
+	    System.out.println("Author: " + new String(author));
 	    System.out.println("Group: " + new String(article_group));
 	    System.out.println("Description: " + new String(description));
 	    System.out.println("Keywords: " + new String(keywords));
@@ -355,13 +408,14 @@ class DatabaseHelper {
 	            int id = resultSet.getInt("id");
 	            String articleTitle = resultSet.getString("title");
 	            String articleHeader = resultSet.getString("header");
+	            String articleAuthor = resultSet.getString("author");
 	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
 	            String articleDescription = resultSet.getString("description");
 	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
 	            String articleBody = resultSet.getString("body");
 	            String articleReferences = resultSet.getString("references");
 		            // Display the found article
-	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	            displayArticleConsole(id, articleTitle, articleHeader, articleAuthor, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
 	            
 	            clearCharArray(articleKeywords);
 	        }
@@ -374,13 +428,14 @@ class DatabaseHelper {
 	}
 	
 	// Returns articles matching a specific keyword
-	public Article returnArticleByKeyword(String keyword) throws Exception {
-	    String query = "SELECT * FROM help_articles WHERE keywords LIKE ?";
+	public Article returnArticleByKeyword(String keyword, String group) throws Exception {
+	    String query = "SELECT * FROM help_articles WHERE keywords LIKE ? AND article_group = ?";
 	    Article article;
 	    
 	    // Prepare statement for searching articles by keyword
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, "%" + keyword + "%");  // Use wildcards to search for keyword within the string
+	        pstmt.setString(2, group);
 	        ResultSet resultSet = pstmt.executeQuery();
 	        
 	        // Track if articles were found
@@ -392,13 +447,14 @@ class DatabaseHelper {
 	            int id = resultSet.getInt("id");
 	            String articleTitle = resultSet.getString("title");
 	            String articleHeader = resultSet.getString("header");
+	            String articleAuthor = resultSet.getString("author");
 	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
 	            String articleDescription = resultSet.getString("description");
 	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
 	            String articleBody = resultSet.getString("body");
 	            String articleReferences = resultSet.getString("references");
 		        
-	            article = new Article(articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	            article = new Article(articleTitle, articleHeader, articleAuthor, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
 	            clearCharArray(articleKeywords);
 	            return article;
 	        }
@@ -412,12 +468,13 @@ class DatabaseHelper {
 	}
 	
 	// Checks whether article exists through specified keyword
-	public boolean articleExistsByKeyword(String keyword) throws SQLException {
-	   String query = "SELECT COUNT(*) FROM help_articles WHERE keywords LIKE ?";
+	public boolean articleExistsByKeyword(String keyword, String group) throws SQLException {
+	   String query = "SELECT COUNT(*) FROM help_articles WHERE keywords LIKE ? AND article_group = ?";
 	   
 	   // Prepare statement for searching articles by keyword
 	   try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	       pstmt.setString(1, "%" + keyword + "%");  // Use wildcards to search for the keyword within keywords
+	       pstmt.setString(2, group);
 	       ResultSet resultSet = pstmt.executeQuery();
 	       
 	       // Return true if there is at least one matching article
@@ -426,12 +483,13 @@ class DatabaseHelper {
 	}
 	
 	// Checks whether article exists through specified title
-		public boolean articleExistsByTitle(String title) throws SQLException {
-		   String query = "SELECT COUNT(*) FROM help_articles WHERE title LIKE ?";
+		public boolean articleExistsByTitle(String title, String group) throws SQLException {
+		   String query = "SELECT COUNT(*) FROM help_articles WHERE title LIKE ? AND article_group = ?";
 		   
 		   // Prepare statement for searching articles by title
 		   try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 		       pstmt.setString(1, title);
+		       pstmt.setString(2, group);
 		       ResultSet resultSet = pstmt.executeQuery();
 		       
 		       // Return true if there is at least one matching article
@@ -450,6 +508,7 @@ class DatabaseHelper {
             	writer.write("ID: " + resultSet.getInt("id") + "\n");
                 writer.write("Title: " + resultSet.getString("title") + "\n");
                 writer.write("Header: " + resultSet.getString("header") + "\n");
+                writer.write("Author: " + resultSet.getString("author") + "\n");
                 writer.write("Group: " + resultSet.getString("article_group") + "\n");  // Use "group" instead of "Group"
                 writer.write("Description: " + resultSet.getString("description") + "\n");
                 writer.write("Keywords: " + resultSet.getString("keywords") + "\n");
@@ -473,6 +532,7 @@ class DatabaseHelper {
             while (resultSet.next()) {
                 writer.write("Title: " + resultSet.getString("title") + "\n");
                 writer.write("Header: " + resultSet.getString("header") + "\n");
+                writer.write("Author: " + resultSet.getString("author") + "\n");
                 writer.write("Group: " + resultSet.getString("article_group") + "\n");
                 writer.write("Description: " + resultSet.getString("description") + "\n");
                 writer.write("Keywords: " + resultSet.getString("keywords") + "\n");
@@ -492,7 +552,7 @@ class DatabaseHelper {
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
 			String line;
 			int id = 0;
-        	String title = null, header = null, group = null, description = null, keywords = null, body = null, references = null;
+        	String title = null, header = null, author = null, group = null, description = null, keywords = null, body = null, references = null;
 	        	// Parse each line of the external data file
 			while ((line = reader.readLine()) != null) {
 				if (line.startsWith("ID: ")) {
@@ -520,6 +580,8 @@ class DatabaseHelper {
 					title = line.substring(7);
 				} else if (line.startsWith("Header: ")) {
 					header = line.substring(8);
+				} else if (line.startsWith("Author: ")) {
+					header = line.substring(8);
 				} else if (line.startsWith("Group: ")) {
 					group = line.substring(7);
 				} else if (line.startsWith("Description: ")) {
@@ -533,21 +595,22 @@ class DatabaseHelper {
 				} else if (line.equals("---")) {
 					
 					// Insert the article into the database
-					String insertQuery = "INSERT INTO help_articles (id, title, header, article_group, description, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+					String insertQuery = "INSERT INTO help_articles (id, title, header, author, article_group, description, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 					try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
 						pstmt.setInt(1, id);
 						pstmt.setString(2, title);
 						pstmt.setString(3, header);
-						pstmt.setString(4, group);
-						pstmt.setString(5, description);
-						pstmt.setString(6, keywords);
-						pstmt.setString(7, body);
-						pstmt.setString(8, references);
+						pstmt.setString(4, author);
+						pstmt.setString(5, group);
+						pstmt.setString(6, description);
+						pstmt.setString(7, keywords);
+						pstmt.setString(8, body);
+						pstmt.setString(9, references);
 						pstmt.executeUpdate();
 					}
 						// Reset article variables for the next article
 					id = 0;
-                	title = header = group = description = keywords = body = references = null;
+                	title = header = author = group = description = keywords = body = references = null;
 				}
 			}
 		}
@@ -557,12 +620,13 @@ class DatabaseHelper {
 	    return encryptionHelper.decrypt(encryptedField);
 	}
 
-    public void decryptDisplayArticles(String file_name) throws Exception {
-	    String query = "SELECT * FROM help_articles WHERE title LIKE ?";
+    public void decryptDisplayArticles(String file_name, String group) throws Exception {
+	    String query = "SELECT * FROM help_articles WHERE title LIKE ? AND article_group = ?";
 	    
 	    // Prepare statement for searching articles by keyword
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, "%" + file_name + "%");  // Use wildcards to search for keyword within the string
+	        pstmt.setString(2, group);
 	        ResultSet resultSet = pstmt.executeQuery();
 	        
 	        // Track if articles were found
@@ -574,6 +638,7 @@ class DatabaseHelper {
 	            int id = resultSet.getInt("id");
 	            String articleTitle = resultSet.getString("title");
 	            String articleHeader = resultSet.getString("header");
+	            String articleAuthor = resultSet.getString("author");
 	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
 	            String articleDescription = resultSet.getString("description");
 	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
@@ -581,7 +646,7 @@ class DatabaseHelper {
 	            String articleReferences = resultSet.getString("references");
 
 	            // Display the found article
-	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	            displayArticleConsole(id, articleTitle, articleHeader, articleAuthor, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
 	          
 	            clearCharArray(articleKeywords);
 	        }
@@ -592,12 +657,16 @@ class DatabaseHelper {
 	        }
 	    }
 	}
-
-    public void decryptDisplayAllArticles() throws Exception {
-	    String query = "SELECT * FROM help_articles";
+    
+    public void decryptDisplayArticlesByKeyword(String keyword, String group) throws Exception {
+	    String query = "SELECT * FROM help_articles WHERE title LIKE ? OR author LIKE ? OR description LIKE ? AND article_group = ?";
 	    
 	    // Prepare statement for searching articles by keyword
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, "%" + keyword + "%");  // Use wildcards to search for keyword within the string
+	        pstmt.setString(2, "%" + keyword + "%");
+	        pstmt.setString(3, "%" + keyword + "%");
+	        pstmt.setString(4, group);
 	        ResultSet resultSet = pstmt.executeQuery();
 	        
 	        // Track if articles were found
@@ -609,6 +678,7 @@ class DatabaseHelper {
 	            int id = resultSet.getInt("id");
 	            String articleTitle = resultSet.getString("title");
 	            String articleHeader = resultSet.getString("header");
+	            String articleAuthor = resultSet.getString("author");
 	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
 	            String articleDescription = resultSet.getString("description");
 	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
@@ -616,7 +686,44 @@ class DatabaseHelper {
 	            String articleReferences = resultSet.getString("references");
 
 	            // Display the found article
-	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	            displayArticleConsole(id, articleTitle, articleHeader, articleAuthor, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	          
+	            clearCharArray(articleKeywords);
+	        }
+	        
+	        // Error statement if article not found
+	        if (!articleFound) {
+	            System.out.println("No article found with the title: " + keyword);
+	        }
+	    }
+	}
+
+    public void decryptDisplayAllArticles(String group) throws Exception {
+	    String query = "SELECT * FROM help_articles WHERE article_group = ?";
+	    
+	    // Prepare statement for searching articles by keyword
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	    	pstmt.setString(1, group);
+	        ResultSet resultSet = pstmt.executeQuery();
+	        
+	        // Track if articles were found
+	        boolean articleFound = false;
+	      
+	        // Iterate through the result set
+	        while (resultSet.next()) {
+	            articleFound = true;
+	            int id = resultSet.getInt("id");
+	            String articleTitle = resultSet.getString("title");
+	            String articleHeader = resultSet.getString("header");
+	            String articleAuthor = resultSet.getString("author");
+	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
+	            String articleDescription = resultSet.getString("description");
+	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
+	            String articleBody = decryptField(resultSet.getString("body"));
+	            String articleReferences = resultSet.getString("references");
+
+	            // Display the found article
+	            displayArticleConsole(id, articleTitle, articleHeader, articleAuthor, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
 	          
 	            clearCharArray(articleKeywords);
 	        }
@@ -629,12 +736,13 @@ class DatabaseHelper {
 	}
 
     
-    public void decryptDisplayArticlesByLevel(String level) throws Exception {
-	    String query = "SELECT * FROM help_articles WHERE article_group = ?";
+    public void decryptDisplayArticlesByLevel(String level, String group) throws Exception {
+	    String query = "SELECT * FROM help_articles WHERE keywords = ? AND article_group = ?";
 	    
 	    // Prepare statement for searching articles by keyword
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, level);
+	        pstmt.setString(2, group);
 	        ResultSet resultSet = pstmt.executeQuery();
 	        
 	        // Track if articles were found
@@ -646,6 +754,7 @@ class DatabaseHelper {
 	            int id = resultSet.getInt("id");
 	            String articleTitle = resultSet.getString("title");
 	            String articleHeader = resultSet.getString("header");
+	            String articleAuthor = resultSet.getString("author");
 	            char[] articleGroup = resultSet.getString("article_group").toCharArray();
 	            String articleDescription = resultSet.getString("description");
 	            char[] articleKeywords = resultSet.getString("keywords").toCharArray();
@@ -653,7 +762,7 @@ class DatabaseHelper {
 	            String articleReferences = resultSet.getString("references");
 
 	            // Display the found article
-	            displayArticleConsole(id, articleTitle, articleHeader, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
+	            displayArticleConsole(id, articleTitle, articleHeader, articleAuthor, articleGroup, articleDescription, articleKeywords, articleBody, articleReferences);
 	          
 	            clearCharArray(articleKeywords);
 	        }
