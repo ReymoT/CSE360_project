@@ -34,8 +34,12 @@ public class UserGUI extends Application
     private Button registerButton; // button to register
     private ComboBox<String> roleList; // drop-down list for choosing the role
     private ComboBox<String> accessGroup; //drop-down list for choosing the special access group
+    private Button testCases; // button for executing test cases
     
     String rights = null; // rights to be passed to the dashboard
+    
+    int passedCases = 0;
+    int failedCases = 0;
     
     private DatabaseHelper database; //new instance of the database helper
     
@@ -112,8 +116,14 @@ public class UserGUI extends Application
 			}
 		});
 
+        testCases = new Button("EXECUTE TEST CASES");
+        testCases.setOnAction(action -> {
+			testFunction();
+		});
+
+        
         VBox layout = new VBox(10);
-        layout.getChildren().addAll(userNameField, emailField, passwordField, roleList, accessGroup, firstNameField, middleNameField, lastNameField, preferredNameField, loginButton, registerButton);
+        layout.getChildren().addAll(userNameField, emailField, passwordField, roleList, accessGroup, firstNameField, middleNameField, lastNameField, preferredNameField, loginButton, registerButton, testCases);
 
         Scene theScene = new Scene(layout, 800, 600);
         theStage.setScene(theScene);
@@ -233,5 +243,43 @@ public class UserGUI extends Application
         alert.showAndWait();
     }
     
+    private void testFunction()
+    {
+    	performTestCase("a", "a", "Admin", "Group 1");
+    	performTestCase("b", "b", "Student", "Group 1");
+    	performTestCase("c", "c", "Instructor", "Group 1");
+    	performTestCase("d", "d", "Student", "Group 2");
+    	performTestCase("k@gmail.com", "passsssssword", "Instructor", "Group 2");
+    	performTestCase("s@hotmail.com", "word", "Student", "Group 3");
+    	performTestCase("testtest", "jdjdj", "Student", "Group 3");
+    	performTestCase("js", "sd", "Student", "Group 3");
+    	performTestCase("test1", "sd", "Student", "Group 4");
+    	performTestCase("test2", "jdjdj", "Student", "Group 8");
+    	performTestCase("user", "jdjdj", "Student", "Group 1");
+    	performTestCase("user4", "jdjdj", "Instructor", "Group 0");
+    	
+    	System.out.println("PASSED TEST CASES: " + passedCases);
+    	System.out.println("FAILED TEST CASES: " + failedCases);
+    }
     
+    
+    private void performTestCase(String email, String password, String role, String group)
+    {	
+    	boolean loggedin = false;
+    	try {
+			loggedin = database.login(email, password, role, group);
+		} catch (SQLException e) {
+			failedCases++;
+			e.printStackTrace();
+		}
+    	if (loggedin)
+    	{
+    		passedCases++;
+    	}
+    	else
+    	{
+    		failedCases++;
+    	}
+    	
+    }
 }
