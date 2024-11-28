@@ -1,4 +1,4 @@
-package phaseThree;
+package passwordEvaluationTestbed;
 
 import java.sql.*;
 import java.sql.Connection;
@@ -319,7 +319,7 @@ class DatabaseHelper {
 	public void addArticle(String title, String header, String author, char[] article_group, String description, char[] keywords, String body, String references) throws Exception {
 		String encryptedBody = encryptedField(body);
 		// SQL statement to insert a new article into the help_articles table
-		String insertArticle = "INSERT INTO help_articles (title, header, author, article_group, description, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		String insertArticle = "INSERT INTO help_articles (title, header, author, article_group, description, keywords, body, references) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 		try (PreparedStatement pstmt = connection.prepareStatement(insertArticle)) {
 
 			// Setting parameters
