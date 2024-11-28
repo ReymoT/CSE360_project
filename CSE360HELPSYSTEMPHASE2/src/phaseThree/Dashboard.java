@@ -267,7 +267,7 @@ public class Dashboard
 			}
         });
 
-        popupLayout.getChildren().addAll(titleField, headerField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
+        popupLayout.getChildren().addAll(titleField, headerField, authorField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
         
         popupStage.setScene(popupScene);

@@ -1,4 +1,4 @@
-package phaseThree;
+package passwordEvaluationTestbed;
 
 /*******
  * <p> Article Class </p>
@@ -14,6 +14,7 @@ class Article
 {
 	private String title; //variable for title
 	private String header; //variable for the header
+	private String author; //variable for author
 	private char[] articleGroup; //variable for the article group
 	private String description; //variable for abstract
 	private char[] keywords; //variable for a set of keywords
@@ -25,10 +26,11 @@ class Article
 		
 	}
 	
-	public Article(String title, String header, char[] articleGroup, String description, char[] keywords, String body, String references)
+	public Article(String title, String header, String author, char[] articleGroup, String description, char[] keywords, String body, String references)
 	{
 		this.title = title;
 		this.header = header;
+		this.author = author;
 		this.articleGroup = articleGroup;
 		this.description = description;
 		this.keywords = keywords;
@@ -45,6 +47,11 @@ class Article
 	public String getHeader()
 	{
 		return this.header;
+	}
+	
+	public String getAuthor()
+	{
+		return this.author;
 	}
 	
 	public char[] getArticleGroup()

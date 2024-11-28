@@ -326,9 +326,9 @@ class DatabaseHelper {
 	        pstmt.setString(1, title);
 	        pstmt.setString(2, header);
 	        pstmt.setString(3, author);
-	        pstmt.setString(4, new String(article_group).toLowerCase());
+	        pstmt.setString(4, new String(article_group));
 	        pstmt.setString(5, description);
-	        pstmt.setString(6, new String(keywords));
+	        pstmt.setString(6, new String(keywords).toLowerCase());
 	        pstmt.setString(7, encryptedBody);
 	        pstmt.setString(8, references);
 
@@ -659,7 +659,7 @@ class DatabaseHelper {
 	}
     
     public void decryptDisplayArticlesByKeyword(String keyword, String group) throws Exception {
-	    String query = "SELECT * FROM help_articles WHERE title LIKE ? OR author LIKE ? OR description LIKE ? AND article_group = ?";
+	    String query = "SELECT * FROM help_articles WHERE title LIKE ? OR author LIKE ? OR description LIKE ? AND keywords = ?";
 	    
 	    // Prepare statement for searching articles by keyword
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
