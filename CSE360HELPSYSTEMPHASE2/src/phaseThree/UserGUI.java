@@ -4,10 +4,14 @@ package phaseThree;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.collections.*;
+import javafx.geometry.Pos;
 
+import java.awt.Color;
 //SQL Import
 import java.sql.SQLException;
 
@@ -60,32 +64,77 @@ public class UserGUI extends Application
 
         userNameField = new TextField();
         userNameField.setPromptText("Enter your username");
+        userNameField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         emailField = new TextField();
         emailField.setPromptText("Enter your email");
+        emailField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
 
         passwordField = new PasswordField();
         passwordField.setPromptText("Enter your password");
+        passwordField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         ObservableList<String> roleOptions = FXCollections.observableArrayList("Student", "Instructor", "Admin");
         roleList = new ComboBox<>(roleOptions);
         roleList.setValue("Student"); // default role is student
         
+        roleList.setStyle("-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; ");
+        
         ObservableList<String> groupOptions = FXCollections.observableArrayList("Group 1", "Group 2", "Group 3");
         accessGroup = new ComboBox<>(groupOptions);
         accessGroup.setValue("Group 1"); // default role is Group 1
         
+        accessGroup.setStyle("-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; ");
+        
         firstNameField = new TextField();
         firstNameField.setPromptText("Enter your first name");
+        firstNameField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         middleNameField = new TextField();
         middleNameField.setPromptText("Enter your middle name");
+        middleNameField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         lastNameField = new TextField();
         lastNameField.setPromptText("Enter your last name");
+        lastNameField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         preferredNameField = new TextField();
         preferredNameField.setPromptText("Enter your preferred name");
+        preferredNameField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
 
         loginButton = new Button("Login");
         loginButton.setOnAction(action -> {
@@ -106,6 +155,32 @@ public class UserGUI extends Application
 				e.printStackTrace();
 			}
 		});
+        loginButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+        //Add a glow and enlarge the button upon hovering
+        loginButton.setOnMouseEntered(event -> {
+        	loginButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+            loginButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        loginButton.setOnMouseExited(event -> {
+        	loginButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+            loginButton.setEffect(null);
+        });
 
         registerButton = new Button("Register");
         registerButton.setOnAction(action -> {
@@ -115,6 +190,31 @@ public class UserGUI extends Application
 				e.printStackTrace();
 			}
 		});
+        registerButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+      //Add a glow and enlarge the button upon hovering
+        registerButton.setOnMouseEntered(event -> {
+        	registerButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	registerButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        registerButton.setOnMouseExited(event -> {
+        	registerButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	registerButton.setEffect(null);
+        });
 
         testCases = new Button("EXECUTE TEST CASES");
         testCases.setOnAction(action -> {
@@ -125,6 +225,7 @@ public class UserGUI extends Application
         VBox layout = new VBox(10);
         layout.getChildren().addAll(userNameField, emailField, passwordField, roleList, accessGroup, firstNameField, middleNameField, lastNameField, preferredNameField, loginButton, registerButton, testCases);
 
+        layout.setAlignment(Pos.CENTER);
         Scene theScene = new Scene(layout, 800, 600);
         theStage.setScene(theScene);
         theStage.show();
@@ -153,8 +254,6 @@ public class UserGUI extends Application
         {
         	createAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + email + "\nYour group is: " + groupValue);
         	rights = database.getUserRights(email); // update user rights
-        	System.out.println(rights);
-        	database.displayAllUsers();
         	return true;
         } 
         else
@@ -249,6 +348,7 @@ public class UserGUI extends Application
     	performTestCase("b", "b", "Student", "Group 1");
     	performTestCase("c", "c", "Instructor", "Group 1");
     	performTestCase("d", "d", "Student", "Group 2");
+    	performTestCase("e", "e", "Instructor", "Group 1");
     	performTestCase("k@gmail.com", "passsssssword", "Instructor", "Group 2");
     	performTestCase("s@hotmail.com", "word", "Student", "Group 3");
     	performTestCase("testtest", "jdjdj", "Student", "Group 3");

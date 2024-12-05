@@ -4,9 +4,12 @@ package phaseThree;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.collections.*;
+import javafx.geometry.Pos;
 
 //SQL Import
 import java.sql.SQLException;
@@ -81,6 +84,34 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        addButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+        DropShadow hoverShadow = new DropShadow();
+        //Add a glow and enlarge the button upon hovering
+        addButton.setOnMouseEntered(event -> {
+        	addButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	addButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        addButton.setOnMouseExited(event -> {
+        	addButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	addButton.setEffect(null);
+        });
+
 
         viewButton = new Button("View Article");
         viewButton.setOnAction(action -> {
@@ -90,6 +121,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+    	viewButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        viewButton.setOnMouseEntered(event -> {
+        	viewButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	viewButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        viewButton.setOnMouseExited(event -> {
+        	viewButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	viewButton.setEffect(null);
+        });
 
         viewAllArticlesButton = new Button("View All Articles");
         viewAllArticlesButton.setOnAction(action -> {
@@ -99,6 +156,33 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        viewAllArticlesButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        viewAllArticlesButton.setOnMouseEntered(event -> {
+        	viewAllArticlesButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	viewAllArticlesButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        viewAllArticlesButton.setOnMouseExited(event -> {
+        	viewAllArticlesButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	viewAllArticlesButton.setEffect(null);
+        });
+
         
         searchButton = new Button("Search Article");
         searchButton.setOnAction(action -> {
@@ -108,6 +192,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        searchButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        searchButton.setOnMouseEntered(event -> {
+        	searchButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	searchButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        searchButton.setOnMouseExited(event -> {
+        	searchButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	searchButton.setEffect(null);
+        });
         
         editButton = new Button("Edit Article");
         editButton.setOnAction(action -> {
@@ -117,6 +227,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        editButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        editButton.setOnMouseEntered(event -> {
+        	editButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	editButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        editButton.setOnMouseExited(event -> {
+        	editButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	editButton.setEffect(null);
+        });
         
         deleteButton = new Button("Delete Article");
         deleteButton.setOnAction(action -> {
@@ -126,6 +262,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        deleteButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        deleteButton.setOnMouseEntered(event -> {
+        	deleteButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	deleteButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        deleteButton.setOnMouseExited(event -> {
+        	deleteButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	deleteButton.setEffect(null);
+        });
 
         backupButton = new Button("Backup Article");
         backupButton.setOnAction(action -> {
@@ -135,7 +297,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
-        
+        backupButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        backupButton.setOnMouseEntered(event -> {
+        	backupButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	backupButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        backupButton.setOnMouseExited(event -> {
+        	backupButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	backupButton.setEffect(null);
+        });
         
         restoreButton = new Button("Restore Article");
         restoreButton.setOnAction(action -> {
@@ -145,6 +332,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        restoreButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        restoreButton.setOnMouseEntered(event -> {
+        	restoreButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	restoreButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        restoreButton.setOnMouseExited(event -> {
+        	restoreButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	restoreButton.setEffect(null);
+        });
         
         displayMessagesButton = new Button("Display Help Messages");
         displayMessagesButton.setOnAction(action -> {
@@ -155,6 +368,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        displayMessagesButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        displayMessagesButton.setOnMouseEntered(event -> {
+        	displayMessagesButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	displayMessagesButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        displayMessagesButton.setOnMouseExited(event -> {
+        	displayMessagesButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	displayMessagesButton.setEffect(null);
+        });
         
         sendMessageButton = new Button("Help");
         sendMessageButton.setOnAction(action -> {
@@ -165,6 +404,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        sendMessageButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        sendMessageButton.setOnMouseEntered(event -> {
+        	sendMessageButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	sendMessageButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        sendMessageButton.setOnMouseExited(event -> {
+        	sendMessageButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	sendMessageButton.setEffect(null);
+        });
         
         modifyRightsButton = new Button("Modify Rights");
         modifyRightsButton.setOnAction(action -> {
@@ -174,6 +439,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        modifyRightsButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        modifyRightsButton.setOnMouseEntered(event -> {
+        	modifyRightsButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	modifyRightsButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        modifyRightsButton.setOnMouseExited(event -> {
+        	modifyRightsButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	modifyRightsButton.setEffect(null);
+        });
         
         modifyStudentsButton = new Button("Modify Students");
         modifyStudentsButton.setOnAction(action -> {
@@ -183,6 +474,32 @@ public class Dashboard
 				e.printStackTrace();
 			}
 		});
+        modifyStudentsButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+
+      //Add a glow and enlarge the button upon hovering
+        modifyStudentsButton.setOnMouseEntered(event -> {
+        	modifyStudentsButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	modifyStudentsButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        modifyStudentsButton.setOnMouseExited(event -> {
+        	modifyStudentsButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	modifyStudentsButton.setEffect(null);
+        });
         
         List<String> userRights = Arrays.asList(rights.split(",\\s*"));
 		if (userRights.contains("a"))
@@ -225,6 +542,7 @@ public class Dashboard
 			layout.getChildren().add(modifyStudentsButton);
 		}
         Scene theScene = new Scene(layout, 800, 600);
+        layout.setAlignment(Pos.CENTER);
         return theScene;
     }
 
@@ -235,24 +553,59 @@ public class Dashboard
 
         titleField = new TextField();
         titleField.setPromptText("Enter the title:");
+        titleField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         headerField = new TextField();
         headerField.setPromptText("Enter the header:");
+        headerField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         authorField = new TextField();
         authorField.setPromptText("Enter the author:");
+        authorField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         descriptionField = new TextField();
         descriptionField.setPromptText("Enter the description:");
+        descriptionField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         keywordsField = new TextField();
         keywordsField.setPromptText("Enter the keywords:");
+        keywordsField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         bodyField = new TextField();
         bodyField.setPromptText("Enter the body of the article:");
+        bodyField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         referencesField = new TextField();
         referencesField.setPromptText("Enter the references:");
+        referencesField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -266,10 +619,38 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
+        
 
         popupLayout.getChildren().addAll(titleField, headerField, authorField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
         
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("Add Article");
         popupStage.show();
@@ -282,6 +663,11 @@ public class Dashboard
 
         searchByTitle = new TextField();
         searchByTitle.setPromptText("Enter the title:");
+        searchByTitle.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -295,10 +681,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
 
         popupLayout.getChildren().addAll(searchByTitle, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("View Article");
         popupStage.show();
@@ -312,6 +724,10 @@ public class Dashboard
     	ObservableList<String> levelOptions = FXCollections.observableArrayList("All", "Beginner", "Intermediate", "Advanced", "Expert");
         contentLevel = new ComboBox<>(levelOptions);
         contentLevel.setValue("All"); // default choice is all
+        contentLevel.setStyle("-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; ");
         
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -325,10 +741,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
 
         popupLayout.getChildren().addAll(contentLevel, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("View Article");
         popupStage.show();
@@ -342,6 +784,11 @@ public class Dashboard
 
         search = new TextField();
         search.setPromptText("Enter the keyword of the article to search:");
+        search.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -355,10 +802,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
 
         popupLayout.getChildren().addAll(search, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("Search Article");
         popupStage.show();
@@ -372,24 +845,59 @@ public class Dashboard
         
         titleField = new TextField();
         titleField.setPromptText("Enter the NEW title:");
+        titleField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         headerField = new TextField();
         headerField.setPromptText("Enter the NEW header:");
+        headerField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         authorField = new TextField();
         authorField.setPromptText("Enter the NEW author:");
+        authorField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         descriptionField = new TextField();
         descriptionField.setPromptText("Enter the NEW description:");
+        descriptionField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         keywordsField = new TextField();
         keywordsField.setPromptText("Enter the NEW keywords:");
+        keywordsField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         bodyField = new TextField();
         bodyField.setPromptText("Enter the NEW body of the article:");
+        bodyField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         referencesField = new TextField();
         referencesField.setPromptText("Enter the NEW references:");
+        referencesField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -403,10 +911,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
 
-        popupLayout.getChildren().addAll(titleField, headerField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
+
+        popupLayout.getChildren().addAll(titleField, headerField, authorField, descriptionField, keywordsField, bodyField, referencesField, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("Edit Article");
         popupStage.show();
@@ -419,6 +953,11 @@ public class Dashboard
 
         deleteByTitle = new TextField();
         deleteByTitle.setPromptText("Enter the title of the article to be deleted:");
+        deleteByTitle.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -432,10 +971,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
 
         popupLayout.getChildren().addAll(deleteByTitle, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("Delete Article");
         popupStage.show();
@@ -449,6 +1014,11 @@ public class Dashboard
 
         fileName = new TextField();
         fileName.setPromptText("Enter the file name where to back up:");
+        fileName.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -462,10 +1032,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
 
         popupLayout.getChildren().addAll(fileName, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("Backup Articles");
         popupStage.show();
@@ -478,10 +1074,19 @@ public class Dashboard
 
         fileName = new TextField();
         fileName.setPromptText("Enter the file name from where to restore:");
+        fileName.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         ObservableList<String> roleOptions = FXCollections.observableArrayList("No", "Yes");
         replaceArticles = new ComboBox<>(roleOptions);
         replaceArticles.setValue("No"); // default answer is no
+        replaceArticles.setStyle("-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; ");
         
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -495,10 +1100,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
 
         popupLayout.getChildren().addAll(fileName, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("Restore Articles");
         popupStage.show();
@@ -511,13 +1142,27 @@ public class Dashboard
         
         messageTitle = new TextField();
         messageTitle.setPromptText("Enter the message title");
+        messageTitle.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
 
         messageBody = new TextField();
         messageBody.setPromptText("Enter the message body");
+        messageBody.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
         
         ObservableList<String> typeOptions = FXCollections.observableArrayList("Generic", "Specific");
         messageType = new ComboBox<>(typeOptions);
         messageType.setValue("Generic"); // default answer is generic
+        messageType.setStyle("-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; ");
 
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -531,10 +1176,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
 
         popupLayout.getChildren().addAll(messageTitle, messageBody, messageType, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("Send a Help Message");
         popupStage.show();
@@ -547,9 +1218,19 @@ public class Dashboard
         
         emailField = new TextField();
         emailField.setPromptText("Enter the email");
+        emailField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
 
         rightsField = new TextField();
         rightsField.setPromptText("Enter the rights");
+        rightsField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
 
         submitButton = new Button("Submit");
         submitButton.setOnAction(action -> {
@@ -563,10 +1244,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
 
         popupLayout.getChildren().addAll(emailField, rightsField, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("Modify Rights of Users");
         popupStage.show();
@@ -579,6 +1286,11 @@ public class Dashboard
         
         emailField = new TextField();
         emailField.setPromptText("Enter the email");
+        emailField.setStyle("-fx-background-color: #dedddb; " +
+                "-fx-border-color: #4CAF50; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-padding: 5px; " +
+                "-fx-font-size: 14px;");
 
         ObservableList<String> groupOptions = FXCollections.observableArrayList("Group 1", "Group 2", "Group 3");
         newGroup = new ComboBox<>(groupOptions);
@@ -596,10 +1308,36 @@ public class Dashboard
 				e.printStackTrace();
 			}
         });
+        submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 10px 15px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-cursor: hand;");
+        DropShadow hoverShadow = new DropShadow();
+      //Add a glow and enlarge the button upon hovering
+        submitButton.setOnMouseEntered(event -> {
+        	submitButton.setStyle("-fx-background-color: #45A049; " +
+                                  "-fx-text-fill: black; " +
+                                  "-fx-font-size: 18px; " +
+                                  "-fx-border-color: #128021;");
+        	submitButton.setEffect(hoverShadow);
+        });
+
+        // Remove effects
+        submitButton.setOnMouseExited(event -> {
+        	submitButton.setStyle("-fx-background-color: #13ac1f; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-padding: 10px 15px; " +
+                    "-fx-border-radius: 5px; " +
+                    "-fx-cursor: hand;");
+        	submitButton.setEffect(null);
+        });
 
         popupLayout.getChildren().addAll(emailField, newGroup, submitButton);
         Scene popupScene = new Scene(popupLayout, 600, 400);
-        
+        popupLayout.setAlignment(Pos.CENTER);
         popupStage.setScene(popupScene);
         popupStage.setTitle("Modify Groups of Users");
         popupStage.show();
